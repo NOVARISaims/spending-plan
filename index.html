@@ -4,14 +4,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Spending Plan (Local)</title>
+  <title>Spending Plan</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="style.css">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Spending Plan">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <!-- SheetJS for reading Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -73,22 +72,8 @@
     </section>
   </main>
 
-  <!-- Passcode gate -->
-  <div id="lock" class="lock">
-    <div class="lock-card">
-      <h2>Enter Passcode</h2>
-      <input id="pin" type="password" pattern="[0-9]*" inputmode="numeric" placeholder="4–12 digits" maxlength="12">
-      <button id="btn-unlock">Unlock</button>
-      <p class="muted" id="lock-hint">First time? Set a PIN and we'll encrypt your data locally.</p>
-    </div>
-  </div>
-
-  <!-- Settings drawer -->
   <dialog id="settings">
     <h3>Settings</h3>
-    <div class="settings-group">
-      <button id="btn-change-pin">Change Passcode</button>
-    </div>
     <div class="settings-group danger">
       <button id="btn-delete-data">Delete All Data</button>
       <p class="muted">Manual deletion only. Requires double confirmation.</p>
@@ -99,12 +84,11 @@
   </dialog>
 
   <footer class="app-footer">
-    <span>Local-only • Encrypted at rest • iOS friendly</span>
+    <span>Local-only • iOS friendly</span>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="app.no-pin.js"></script>
   <script>
-    // Optional: register SW when served over http/https (won't work from file://)
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
       navigator.serviceWorker.register('service-worker.js').catch(()=>{});
     }
