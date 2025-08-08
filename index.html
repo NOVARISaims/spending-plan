@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spending Plan (Local)</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Spending Plan">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <!-- SheetJS for reading Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <h1>Spending Plan</h1>
+    <div class="header-actions">
+      <button id="btn-import" class="secondary">Import Excel</button>
+      <input id="file-input" type="file" accept=".xlsx,.xls" hidden>
+      <button id="btn-settings" aria-label="Settings">⚙️</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="controls">
+      <label>
+        Month
+        <select id="month-select"></select>
+      </label>
+      <div class="spacer"></div>
+      <button id="btn-export" class="secondary">Export JSON</button>
+    </section>
+
+    <section id="mapping" class="card hidden">
+      <h2>Map Columns</h2>
+      <p>Select the columns in your sheet that match each field. This is saved per workbook.</p>
+      <div class="grid-2">
+        <label>Date
+          <select id="map-date"></select>
+        </label>
+        <label>End-of-Day Balance
+          <select id="map-eod"></select>
+        </label>
+        <label>Next-Day Allowance
+          <select id="map-allow"></select>
+        </label>
+        <label>Comments
+          <select id="map-comment"></select>
+        </label>
+      </div>
+      <button id="btn-save-mapping">Save Mapping</button>
+    </section>
+
+    <section class="card">
+      <h2 id="sheet-title">Sheet</h2>
+      <div id="summary" class="summary"></div>
+      <div class="table-wrap">
+        <table id="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>End-of-Day Balance</th>
+              <th>Next-Day Allowance</th>
+              <th>Comments</th>
+            </tr>
+          </thead>
+          <tbody id="data-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Passcode gate -->
+  <div id="lock" class="lock">
+    <div class="lock-card">
+      <h2>Enter Passcode</h2>
+      <input id="pin" type="password" pattern="[0-9]*" inputmode="numeric" placeholder="4–12 digits" maxlength="12">
+      <button id="btn-unlock">Unlock</button>
+      <p class="muted" id="lock-hint">First time? Set a PIN and we'll encrypt your data locally.</p>
+    </div>
+  </div>
+
+  <!-- Settings drawer -->
+  <dialog id="settings">
+    <h3>Settings</h3>
+    <div class="settings-group">
+      <button id="btn-change-pin">Change Passcode</button>
+    </div>
+    <div class="settings-group danger">
+      <button id="btn-delete-data">Delete All Data</button>
+      <p class="muted">Manual deletion only. Requires double confirmation.</p>
+    </div>
+    <form method="dialog" class="dialog-actions">
+      <button>Close</button>
+    </form>
+  </dialog>
+
+  <footer class="app-footer">
+    <span>Local-only • Encrypted at rest • iOS friendly</span>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Optional: register SW when served over http/https (won't work from file://)
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+    }
+  </script>
+</body>
+</html>
