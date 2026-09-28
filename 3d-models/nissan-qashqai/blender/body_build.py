@@ -300,6 +300,7 @@ def build_spec(surf, side):
     # --- lamps, grilles ---------------------------------------------------------
     S.mixed("hl", F.HEADLAMP)
     S.mixed("tl", F.TAILLAMP)
+    S.region("tl_white", "rear", np.array(F.TAILLAMP_WHITE))      # clear reversing-lamp band
     S.region("grille", "front", np.array(F.GRILLE))
     S.region("grille_low", "front", np.array(F.GRILLE_LOW))
     fog_c, fog_n = fog_frame(S)
@@ -434,9 +435,11 @@ def classify(lab):
 class Half:
     """Overlay result for one side: vertices, faces, classes, normals."""
 
-    def __init__(self, surf, side):
+    def __init__(self, surf, side, extra_lines=None):
         self.surf, self.side = surf, float(side)
         self.spec = build_spec(surf, side)
+        for name, (view, pts) in (extra_lines or {}).items():   # more edges to cut in (interior trims)
+            self.spec.lines[name] = self.spec.view_poly(view, np.asarray(pts, float), closed=False)
         ov = bm.overlay(surf.na, surf.nb, self.spec.regions, self.spec.lines)
         self.ab = ov["ab"]
         self.faces = ov["faces"]

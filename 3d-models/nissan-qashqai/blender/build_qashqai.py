@@ -29,6 +29,7 @@ import argparse
 import json
 import math
 import os
+import shutil
 import sys
 import time
 
@@ -44,6 +45,7 @@ import body_mesh as bm  # noqa: E402
 import mesh_kit as mk  # noqa: E402
 import qashqai_body as qb  # noqa: E402
 import qashqai_features as F  # noqa: E402
+import qashqai_interior as qi  # noqa: E402
 import qashqai_parts as qp  # noqa: E402
 import qashqai_textures as qt  # noqa: E402
 
@@ -63,7 +65,8 @@ MATS = {
                     dict(color=(0.008, 0.008, 0.009), rough=0.08, metal=0.0, coat=0.5)),
     "gap": ("M_PanelGap", "MI_QQ_PanelGap", "M_QQ_Solid", dict(color=(0.02, 0.02, 0.021), rough=0.6, metal=0.3)),
     "plastic": ("M_PlasticBlack", "MI_QQ_PlasticBlack", "M_QQ_Solid",
-                dict(color=(0.018, 0.018, 0.019), rough=0.62, metal=0.0, normal="grain", uv_tiling=25.0)),
+                dict(color=(0.018, 0.018, 0.019), rough=0.62, metal=0.0, normal=("grain_normal", 0.35),
+                     uv_tiling=25.0)),
     "black_plastic": ("M_PlasticBlack", None, None, None),
     "liner": ("M_Liner", "MI_QQ_Liner", "M_QQ_Solid", dict(color=(0.012, 0.012, 0.012), rough=0.9, metal=0.0)),
     "underbody": ("M_Underbody", "MI_QQ_Underbody", "M_QQ_Solid",
@@ -97,16 +100,17 @@ MATS = {
     "indicator": ("M_Indicator", "MI_QQ_Indicator", "M_QQ_Solid",
                   dict(color=(0.9, 0.45, 0.05), rough=0.1, metal=0.0)),
     "grille": ("M_GrilleHoneycomb", "MI_QQ_Grille", "M_QQ_Grille",
-               dict(color=(0.02, 0.02, 0.02), rough=0.45, metal=0.0, texture="honeycomb", uv_tiling=10.0)),
+               dict(color=(0.02, 0.02, 0.02), rough=0.45, metal=0.0, tiled="honeycomb_base",
+                    normal=("honeycomb_normal", 1.0), uv_tiling=10.0)),
     "tyre": ("M_Tyre", "MI_QQ_Tyre", "M_QQ_Solid", dict(color=(0.022, 0.022, 0.024), rough=0.86, metal=0.0)),
     "alloy": ("M_Alloy", "MI_QQ_Alloy", "M_QQ_Paint",
               dict(color=(0.50, 0.51, 0.53), rough=0.30, metal=0.9, coat=0.6, coat_rough=0.08)),
     "wheel_inner": ("M_WheelInner", "MI_QQ_WheelInner", "M_QQ_Solid",
-                    dict(color=(0.05, 0.05, 0.055), rough=0.6, metal=0.5)),
+                    dict(color=(0.03, 0.03, 0.033), rough=0.6, metal=0.5)),
     "cap_black": ("M_BlackGloss", None, None, None),
     "lug": ("M_LugNut", "MI_QQ_LugNut", "M_QQ_Solid", dict(color=(0.7, 0.7, 0.72), rough=0.2, metal=1.0)),
     "brake_disc": ("M_BrakeDisc", "MI_QQ_BrakeDisc", "M_QQ_Solid",
-                   dict(color=(0.28, 0.28, 0.28), rough=0.42, metal=1.0)),
+                   dict(color=(0.16, 0.145, 0.13), rough=0.5, metal=1.0)),
     "brake_hat": ("M_BrakeHat", "MI_QQ_BrakeHat", "M_QQ_Solid",
                   dict(color=(0.12, 0.10, 0.09), rough=0.7, metal=0.6)),
     "caliper": ("M_Caliper", "MI_QQ_Caliper", "M_QQ_Solid", dict(color=(0.06, 0.06, 0.065), rough=0.5, metal=0.4)),
@@ -115,16 +119,68 @@ MATS = {
     "badge_dark": ("M_BadgeDark", "MI_QQ_BadgeDark", "M_QQ_Solid",
                    dict(color=(0.02, 0.02, 0.025), rough=0.2, metal=0.5)),
     "plate_front": ("M_PlateFront", "MI_QQ_PlateFront", "M_QQ_Plate",
-                    dict(color=(0.9, 0.9, 0.9), rough=0.25, metal=0.0, texture="plate_front")),
+                    dict(color=(0.9, 0.9, 0.9), rough=0.25, metal=0.0, decal="plate_front")),
     "plate_rear": ("M_PlateRear", "MI_QQ_PlateRear", "M_QQ_Plate",
-                   dict(color=(0.9, 0.75, 0.0), rough=0.25, metal=0.0, texture="plate_rear")),
+                   dict(color=(0.9, 0.75, 0.0), rough=0.25, metal=0.0, decal="plate_rear")),
     "plate_edge": ("M_PlateEdge", "MI_QQ_PlateEdge", "M_QQ_Solid",
                    dict(color=(0.03, 0.03, 0.03), rough=0.4, metal=0.0)),
+    # --- interior (from the owner's photos) --------------------------------
     "interior_dark": ("M_InteriorPlastic", "MI_QQ_InteriorPlastic", "M_QQ_Solid",
-                      dict(color=(0.018, 0.018, 0.02), rough=0.7, metal=0.0)),
+                      dict(color=(0.016, 0.016, 0.018), rough=0.62, metal=0.0, normal=("grain_normal", 0.35),
+                           uv_tiling=25.0)),
+    "int_soft": ("M_InteriorSoft", "MI_QQ_InteriorSoft", "M_QQ_Solid",
+                 dict(color=(0.020, 0.020, 0.022), rough=0.55, metal=0.0, normal=("grain_normal", 0.5),
+                      uv_tiling=18.0)),
+    "int_grey": ("M_InteriorGrey", "MI_QQ_InteriorGrey", "M_QQ_Solid",
+                 dict(color=(0.040, 0.040, 0.043), rough=0.6, metal=0.0, normal=("grain_normal", 0.35),
+                      uv_tiling=25.0)),
+    "door_card": ("M_DoorCard", "MI_QQ_DoorCard", "M_QQ_Solid",
+                  dict(color=(0.024, 0.024, 0.026), rough=0.66, metal=0.0, normal=("grain_normal", 0.35),
+                       uv_tiling=25.0)),
+    "headliner": ("M_Headliner", "MI_QQ_Headliner", "M_QQ_Solid",
+                  dict(color=(0.42, 0.42, 0.41), rough=0.95, metal=0.0, normal=("seat_fabric_normal", 0.25),
+                       uv_tiling=40.0)),
+    "pillar_trim": ("M_PillarTrim", "MI_QQ_PillarTrim", "M_QQ_Solid",
+                    dict(color=(0.33, 0.33, 0.325), rough=0.7, metal=0.0, normal=("grain_normal", 0.25),
+                         uv_tiling=25.0)),
+    "carpet": ("M_Carpet", "MI_QQ_Carpet", "M_QQ_Solid",
+               dict(color=(0.022, 0.022, 0.023), rough=1.0, metal=0.0, normal=("seat_fabric_normal", 0.6),
+                    uv_tiling=60.0)),
+    "int_silver": ("M_InteriorSatin", "MI_QQ_InteriorSatin", "M_QQ_Solid",
+                   dict(color=(0.55, 0.56, 0.58), rough=0.28, metal=1.0)),
+    "leather": ("M_Leather", "MI_QQ_Leather", "M_QQ_Solid",
+                dict(color=(0.017, 0.017, 0.018), rough=0.45, metal=0.0, normal=("grain_normal", 0.6),
+                     uv_tiling=40.0)),
     "seat": ("M_SeatFabric", "MI_QQ_SeatFabric", "M_QQ_Solid",
-             dict(color=(0.022, 0.022, 0.025), rough=0.95, metal=0.0)),
+             dict(color=(0.016, 0.016, 0.018), rough=0.95, metal=0.0, normal=("seat_fabric_normal", 0.3),
+                  uv_tiling=45.0)),
+    "seat_centre": ("M_SeatFabricPattern", "MI_QQ_SeatFabricPattern", "M_QQ_Grille",
+                    dict(color=(0.07, 0.07, 0.075), rough=0.92, metal=0.0, tiled="seat_fabric_base",
+                         normal=("seat_fabric_normal", 0.45), uv_tiling=25.0)),
+    "belt": ("M_SeatBelt", "MI_QQ_SeatBelt", "M_QQ_Solid",
+             dict(color=(0.03, 0.03, 0.032), rough=0.75, metal=0.0)),
+    "stack_panel": ("M_CentreStack", "MI_QQ_CentreStack", "M_QQ_Plate",
+                    dict(color=(0.1, 0.1, 0.1), rough=0.18, metal=0.0, decal="stack_panel")),
+    "dials": ("M_Dials", "MI_QQ_Dials", "M_QQ_Plate",
+              dict(color=(0.1, 0.1, 0.1), rough=0.3, metal=0.0, decal="dials")),
+    "switches": ("M_WheelSwitches", "MI_QQ_WheelSwitches", "M_QQ_Plate",
+                 dict(color=(0.5, 0.5, 0.5), rough=0.35, metal=0.0, decal="switches")),
 }
+
+# textures: key -> (file name, is a normal map)
+TEXTURES = {
+    "plate_front": ("T_Plate_Front.png", False),
+    "plate_rear": ("T_Plate_Rear.png", False),
+    "honeycomb_base": ("T_Honeycomb_BaseColor.png", False),
+    "honeycomb_normal": ("T_Honeycomb_Normal.png", True),
+    "grain_normal": ("T_PlasticGrain_Normal.png", True),
+    "seat_fabric_base": ("T_SeatFabric_BaseColor.png", False),
+    "seat_fabric_normal": ("T_SeatFabric_Normal.png", True),
+    "stack_panel": ("T_Interior_Stack.png", False),       # drawn by make_interior_textures.py
+    "dials": ("T_Interior_Dials.png", False),
+    "switches": ("T_Interior_Switches.png", False),
+}
+ASSETS = os.path.join(HERE, "assets")
 
 
 def to_unreal(v):
@@ -155,13 +211,18 @@ def make_textures(tex_dir):
     os.makedirs(tex_dir, exist_ok=True)
     front, rear = qt.plates(REG)
     hb, hr, hn = qt.honeycomb()
-    return {
-        "plate_front": write_image(os.path.join(tex_dir, "T_Plate_Front.png"), front, False),
-        "plate_rear": write_image(os.path.join(tex_dir, "T_Plate_Rear.png"), rear, False),
-        "honeycomb_base": write_image(os.path.join(tex_dir, "T_Honeycomb_BaseColor.png"), hb, False),
-        "honeycomb_normal": write_image(os.path.join(tex_dir, "T_Honeycomb_Normal.png"), hn, True),
-        "grain_normal": write_image(os.path.join(tex_dir, "T_PlasticGrain_Normal.png"), qt.grain(), True),
-    }
+    fb, fn = qt.seat_fabric()
+    made = {"plate_front": front, "plate_rear": rear, "honeycomb_base": hb, "honeycomb_normal": hn,
+            "grain_normal": qt.grain(), "seat_fabric_base": fb, "seat_fabric_normal": fn}
+    out = {}
+    for key, (name, is_normal) in TEXTURES.items():
+        path = os.path.join(tex_dir, name)
+        if key in made:
+            out[key] = write_image(path, made[key], is_normal)
+        else:                                   # pre-drawn (lettering): copy from assets/
+            shutil.copyfile(os.path.join(ASSETS, name), path)
+            out[key] = bpy.data.images.load(path)
+    return out
 
 
 def _set(bsdf, name, value):
@@ -193,13 +254,12 @@ def make_materials(tex):
         if s.get("emission"):
             _set(bsdf, "Emission Color", (*s["emission"], 1.0))
             _set(bsdf, "Emission Strength", s.get("emit", 0.0))
-        tx = s.get("texture")
-        if tx in ("plate_front", "plate_rear"):
+        if s.get("decal"):
             t = nt.nodes.new("ShaderNodeTexImage")
-            t.image = tex[tx]
+            t.image = tex[s["decal"]]
             t.location = (-500, 200)
             nt.links.new(t.outputs["Color"], bsdf.inputs["Base Color"])
-        if tx == "honeycomb" or s.get("normal") == "grain":
+        if s.get("tiled") or s.get("normal"):
             # UVs are 1 unit per metre; tile the texture (glTF: KHR_texture_transform)
             uvn = nt.nodes.new("ShaderNodeTexCoord")
             uvn.location = (-1100, -100)
@@ -208,18 +268,20 @@ def make_materials(tex):
             t = s["uv_tiling"]
             mp.inputs["Scale"].default_value = (t, t, 1.0)
             nt.links.new(uvn.outputs["UV"], mp.inputs["Vector"])
-            tn = nt.nodes.new("ShaderNodeTexImage")
-            tn.image = tex["honeycomb_normal" if tx == "honeycomb" else "grain_normal"]
-            tn.location = (-600, -300)
-            nt.links.new(mp.outputs["Vector"], tn.inputs["Vector"])
-            nm = nt.nodes.new("ShaderNodeNormalMap")
-            nm.inputs["Strength"].default_value = 1.0 if tx == "honeycomb" else 0.35
-            nm.location = (-300, -300)
-            nt.links.new(tn.outputs["Color"], nm.inputs["Color"])
-            nt.links.new(nm.outputs["Normal"], bsdf.inputs["Normal"])
-            if tx == "honeycomb":
+            if s.get("normal"):
+                key, strength = s["normal"]
+                tn = nt.nodes.new("ShaderNodeTexImage")
+                tn.image = tex[key]
+                tn.location = (-600, -300)
+                nt.links.new(mp.outputs["Vector"], tn.inputs["Vector"])
+                nm = nt.nodes.new("ShaderNodeNormalMap")
+                nm.inputs["Strength"].default_value = strength
+                nm.location = (-300, -300)
+                nt.links.new(tn.outputs["Color"], nm.inputs["Color"])
+                nt.links.new(nm.outputs["Normal"], bsdf.inputs["Normal"])
+            if s.get("tiled"):
                 tb = nt.nodes.new("ShaderNodeTexImage")
-                tb.image = tex["honeycomb_base"]
+                tb.image = tex[s["tiled"]]
                 tb.location = (-600, 200)
                 nt.links.new(mp.outputs["Vector"], tb.inputs["Vector"])
                 nt.links.new(tb.outputs["Color"], bsdf.inputs["Base Color"])
@@ -235,12 +297,22 @@ def ue_materials():
     for key, (name, inst, parent, s) in MATS.items():
         if s is None or name in out:
             continue
+        textures = {}
+        if s.get("decal"):
+            textures["PlateTexture"] = s["decal"]
+        if parent == "M_QQ_Grille":
+            textures["BaseColorMap"] = s["tiled"]
+            textures["NormalMap"] = s["normal"][0]
+        elif s.get("normal"):
+            textures["DetailNormal"] = s["normal"][0]
         out[name] = {"ue_instance": inst, "ue_parent": parent, "base_color_linear": list(s["color"]),
                      "roughness": s["rough"], "metallic": s["metal"],
                      "clear_coat": s.get("coat", 0.0), "clear_coat_roughness": s.get("coat_rough", 0.0),
                      "opacity": s.get("opacity", 1.0),
                      "emissive": [c * s.get("emit", 0.0) for c in s.get("emission", (0, 0, 0))],
-                     "texture": s.get("texture"), "uv_tiling": s.get("uv_tiling", 1.0)}
+                     "textures": textures,
+                     "detail_normal_strength": s["normal"][1] if s.get("normal") and parent == "M_QQ_Solid" else 0.0,
+                     "uv_tiling": s.get("uv_tiling", 1.0)}
     return out
 
 
@@ -292,26 +364,12 @@ def build_lamps(body, lenses, h):
     headlamp_internals(body, h, ids)
     # tail lamp: red lens with the clear reversing-lamp band, dark red housing
     ids = h.select(lambda c: c[0] == "taillamp")
-    white = tail_white_test(h)
-    bb.add_region_part(lenses, h, ids, lambda k: "tail_clear" if white(k) else "tail_red",
+    bb.add_region_part(lenses, h, ids, lambda k: "tail_clear" if "tl_white" in h.labels[k] else "tail_red",
                        disp=lambda v: np.full(len(v), 0.0012))
     bb.recess(body, h, ids, 0.025, "tail_inner", "tail_inner")
     # fog lamp opening: dark pocket behind the lamp unit
     ids = h.select(lambda c: c[0] == "fog")
     bb.recess(body, h, ids, 0.030, "lamp_black", "lamp_black")
-
-
-def tail_white_test(h):
-    """Faces of the tail lamp in the clear band along its upper edge."""
-    band = F.TAILLAMP_WHITE
-
-    def test(k):
-        f = h.faces[k]
-        P = h.P[f].mean(0)
-        if P[0] > -1.80:                       # the band is on the rear face only
-            return False
-        return bool(bm.points_in_polygon(np.array([[abs(P[1]), P[2]]]), np.array(band))[0])
-    return test
 
 
 def lamp_edge_path(h, ab, inward, back, step=0.012):
@@ -443,6 +501,14 @@ def build_parts(halves, surf):
     qp.build_logo(kit, mk.frame_from(P - np.array([0.012, 0, 0]), Nf), F.LOGO_FRONT["d"], depth=0.012)
     P, N = shell_point(left, "rear", (0.0, F.LOGO_REAR["z"]))
     qp.build_logo(kit, mk.frame_from(P, np.array([-1.0, 0.0, N[2]])), F.LOGO_REAR["d"], depth=0.008)
+    # model badge on the tailgate
+    b = F.BADGE_REAR
+    V, faces = qp.text_mesh(b["text"], b["cap"], b["depth"], b["spacing"])
+    h = left if b["y"] > 0 else right
+    ab = h.spec.mp.map([("rear", abs(b["y"] - x), b["z"] + y) for x, y, _ in V])
+    P = h.shell.eval(ab[:, 0], ab[:, 1])
+    N = h.shell.normal(ab[:, 0], ab[:, 1])
+    kit.add(P + N * (0.0008 + V[:, 2:3]), faces, "chrome", sharp=False)
     # number plates
     P, N = shell_point(left, "front", (0.0, F.PLATE_FRONT["z"]))
     tilt = math.radians(3.0)
@@ -569,7 +635,8 @@ def op_kwargs(op, **kw):
 
 def select_only(objs):
     for o in bpy.context.view_layer.objects:
-        o.select_set(False)
+        if o is not None:
+            o.select_set(False)
     for o in objs:
         o.select_set(True)
     bpy.context.view_layer.objects.active = objs[0]
@@ -651,8 +718,9 @@ def main(argv):
     objects["SM_Qashqai_Glass"] = glass_md.to_object(root, mats)
     objects["SM_Qashqai_Lenses"] = lens_md.to_object(root, mats)
     if not args.no_interior:
+        log("interior")
         ik = mk.Kit("SM_Qashqai_Interior")
-        qp.build_interior(ik)
+        qi.build_interior(ik, log, lining_ds=max(qi.LINING_DS, args.ds * 1.6))
         objects["SM_Qashqai_Interior"] = ik.to_object(root, mats)
     wheel_mesh = qp.build_wheel().to_object(root, mats)
     wheel_mesh.name = "SM_Qashqai_Wheel"
@@ -679,11 +747,9 @@ def main(argv):
         "pivot": "ground level, midway between the axles, on the centre line",
         "unreal_mapping": "UE(x, y, z) = Blender(x, -y, z) * 100 (FBX -Z forward / Y up)",
         "materials": ue_materials(),
-        "textures": {"plate_front": "textures/T_Plate_Front.png", "plate_rear": "textures/T_Plate_Rear.png",
-                     "honeycomb_base": "textures/T_Honeycomb_BaseColor.png",
-                     "honeycomb_normal": "textures/T_Honeycomb_Normal.png",
-                     "plastic_grain_normal": "textures/T_PlasticGrain_Normal.png",
-                     "normal_convention": "OpenGL (+Y); flip green in Unreal"},
+        "textures": {key: {"file": "textures/" + name, "kind": "normal" if is_normal else "color"}
+                     for key, (name, is_normal) in TEXTURES.items()},
+        "normal_map_convention": "OpenGL (+Y); flip green in Unreal",
         "wheels": {tag: {"blender_m": [round(c, 4) for c in ob.location], "unreal_cm": to_unreal(ob.location),
                          "yaw_deg_unreal": 0.0 if tag.endswith("L") else 180.0} for tag, ob in wheels.items()},
         "wheel_radius_cm": round(qp.TYRE_R * 100, 2),

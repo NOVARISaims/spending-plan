@@ -7,8 +7,10 @@ in UE5):
           py "C:/path/to/3d-models/nissan-qashqai/unreal/import_qashqai.py"
 
 What it does:
-    1. imports the textures (number plates, grille honeycomb, plastic grain;
-       normal maps set up for DirectX / flipped green)
+    1. imports the textures listed in the manifest (number plates, grille
+       honeycomb, plastic grain, seat cloth, and the interior panels with
+       lettering: centre stack, dials, steering-wheel switches); normal maps
+       are set up for DirectX (flipped green)
     2. creates master materials (clear-coat paint, solid, glass, plate,
        grille) and one material instance per Blender material slot
     3. imports every SM_Qashqai_*.fbx listed in ../export/manifest.json as a
@@ -106,20 +108,14 @@ class LegacyFbxImporter(object):
 # ---------------------------------------------------------------------------
 # Textures
 # ---------------------------------------------------------------------------
-TEXTURES = {  # manifest key: (asset name, kind)
-    "plate_front": ("T_Plate_Front", "color"),
-    "plate_rear": ("T_Plate_Rear", "color"),
-    "honeycomb_base": ("T_Honeycomb_BaseColor", "color"),
-    "honeycomb_normal": ("T_Honeycomb_Normal", "normal"),
-    "plastic_grain_normal": ("T_PlasticGrain_Normal", "normal"),
-}
-
-
 def import_textures(manifest):
+    """Every texture in the manifest: {key: {"file": ..., "kind": "color" | "normal"}}."""
     out = {}
-    for key, (name, kind) in TEXTURES.items():
-        tex = import_file(os.path.join(EXPORT_DIR, manifest["textures"][key]), DEST + "/Textures", name)[0]
-        if kind == "normal":
+    for key, info in manifest["textures"].items():
+        path = os.path.join(EXPORT_DIR, info["file"])
+        name = os.path.splitext(os.path.basename(path))[0]
+        tex = import_file(path, DEST + "/Textures", name)[0]
+        if info["kind"] == "normal":
             tex.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_NORMALMAP)
             tex.set_editor_property("srgb", False)
             tex.set_editor_property("flip_green_channel", True)     # OpenGL -> DirectX
@@ -179,7 +175,7 @@ def build_solid_master(textures):
     emis = _vector(m, "EmissiveColor", (0.0, 0.0, 0.0), -600, 150)
     uv = _tiled_uv(m, "DetailTiling", 25.0, -900, 300)
     normal = _expr(m, unreal.MaterialExpressionTextureSampleParameter2D, -600, 300,
-                   parameter_name="DetailNormal", texture=textures["plastic_grain_normal"])
+                   parameter_name="DetailNormal", texture=textures["grain_normal"])
     normal.set_editor_property("sampler_type", unreal.MaterialSamplerType.SAMPLERTYPE_NORMAL)
     mel.connect_material_expressions(uv, "", normal, "UVs")
     strength = _scalar(m, "DetailNormalStrength", 0.0, -600, 500)
@@ -231,6 +227,8 @@ def build_glass_master():
 
 
 def build_plate_master(textures):
+    """Texture across the whole UV range: number plates and the lettered
+    interior panels (centre stack, dials, wheel switches)."""
     m = _new_master("M_QQ_Plate")
     tex = _expr(m, unreal.MaterialExpressionTextureSampleParameter2D, -500, -200,
                 parameter_name="PlateTexture", texture=textures["plate_front"])
@@ -240,6 +238,7 @@ def build_plate_master(textures):
 
 
 def build_grille_master(textures):
+    """Tiling base colour and normal map: grille honeycomb, patterned seat cloth."""
     m = _new_master("M_QQ_Grille")
     uv = _tiled_uv(m, "UVTiling", 1.0, -900, 0)
     base = _expr(m, unreal.MaterialExpressionTextureSampleParameter2D, -500, -250,
@@ -280,12 +279,15 @@ def build_instances(manifest, masters, textures):
             e = spec.get("emissive", [0, 0, 0])
             mel.set_material_instance_vector_parameter_value(mi, "EmissiveColor",
                                                              unreal.LinearColor(e[0], e[1], e[2], 1.0))
-        if parent == "M_QQ_Solid" and spec.get("texture") is None and "Plastic" in spec["ue_instance"]:
-            mel.set_material_instance_scalar_parameter_value(mi, "DetailNormalStrength", 0.35)
-        if parent == "M_QQ_Plate":
-            mel.set_material_instance_texture_parameter_value(mi, "PlateTexture", textures[spec["texture"]])
+        for param, key in spec.get("textures", {}).items():
+            mel.set_material_instance_texture_parameter_value(mi, param, textures[key])
+        if parent == "M_QQ_Solid" and spec.get("detail_normal_strength", 0.0) > 0.0:
+            # UV0 is 1 unit per metre: the grain tiles uv_tiling times per metre
+            mel.set_material_instance_scalar_parameter_value(mi, "DetailNormalStrength",
+                                                             spec["detail_normal_strength"])
+            mel.set_material_instance_scalar_parameter_value(mi, "DetailTiling", spec.get("uv_tiling", 25.0))
         if parent == "M_QQ_Grille":
-            # UV0 is 1 unit per metre; one honeycomb tile covers 10 cm
+            # UV0 is 1 unit per metre; one tile covers 1 / uv_tiling metres
             mel.set_material_instance_scalar_parameter_value(mi, "UVTiling", spec.get("uv_tiling", 10.0))
         mel.update_material_instance(mi)
         eal.save_loaded_asset(mi)

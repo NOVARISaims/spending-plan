@@ -2,8 +2,9 @@
 
 A procedural 3D model of a 2017 Nissan Qashqai (second generation, J11,
 pre-facelift) in Acenta trim. It's painted Gun Metallic grey and registered
-**DE17 YAU**. A Blender Python script builds it and an editor Python script
-imports it into Unreal Engine 5.
+**DE17 YAU**. The interior, the alloy wheels and the tailgate badge follow the
+owner's photos of the car. A Blender Python script builds it and an editor
+Python script imports it into Unreal Engine 5.
 
 ![Front three-quarter render](renders/front_three_quarter.jpg)
 
@@ -12,7 +13,9 @@ imports it into Unreal Engine 5.
 | ![Rear three-quarter](renders/rear_three_quarter.jpg) | ![Side](renders/side.jpg) |
 | ![Front](renders/front.jpg) | ![Rear](renders/rear.jpg) |
 | ![Wheel](renders/wheel.jpg) | ![Paint check](renders/paint_check.jpg) |
-| ![Front close-up](renders/detail_front.jpg) | ![Photo camera, front three-quarter](renders/photo_front_left.jpg) |
+| ![Front close-up](renders/detail_front.jpg) | ![Rear close-up](renders/detail_rear.jpg) |
+| ![Dashboard](renders/interior_dash.jpg) | ![Front seats](renders/interior_front.jpg) |
+| ![Rear bench](renders/interior_rear.jpg) | ![Photo camera, front three-quarter](renders/photo_front_left.jpg) |
 
 ## What's modelled
 
@@ -32,19 +35,37 @@ imports it into Unreal Engine 5.
   and a black lower lip.
 - **Rear**: boomerang tail lamps (red lens with the clear reversing band),
   roof spoiler with high-level brake light, rod aerial, recessed plate panel,
-  Nissan roundel, black lower bumper with reflectors.
+  Nissan roundel, chrome QASHQAI script on the tailgate, black lower bumper
+  with reflectors.
 - **Trim**: black wheel-arch mouldings and sill cladding, wheel-well liners,
   body-coloured mirror caps with indicator strips, body-coloured door handles,
   cowl panel.
-- **Wheels**: 17 × 7J five twin-spoke alloys on 215/60 R17 tyres with tread
-  grooves, lug nuts, centre caps, brake discs and calipers. There's one wheel
-  mesh, used four times.
+- **Wheels**: 17 × 7J alloys on 215/60 R17 tyres, as on the owner's car: five
+  pairs of broad flat spokes, each pair joined at the root and split by a slit
+  that widens to about 2 cm at the rim. Tread grooves, lug nuts between the
+  pairs, centre caps, brake discs and calipers. There's one wheel mesh, used
+  four times.
 - **Number plates**: DE17 YAU, white at the front and yellow at the rear. The
   characters follow UK plate proportions (79 mm tall, 50 mm wide, 14 mm stroke,
   11 mm and 33 mm spacing on a 520 × 111 mm plate).
-- **Interior**: simple placeholder only for now: dashboard, right-hand-drive
-  steering wheel, seats and door cards. It's there so the windows don't look
-  empty. It will be replaced once interior photos are available.
+- **Interior** (from the owner's photos; right-hand drive, 6-speed manual):
+  - Soft-touch dashboard with the hooded instrument binnacle and dials (rev
+    counter, mph speedo, centre display), four chrome-ringed vents, the
+    hazard switch, and the gloss-black band across the passenger side.
+  - Piano-black centre stack with the CD / radio unit and the dual-zone
+    climate control (AUTO and DUAL knobs), airbag lamp and USB / AUX sockets.
+    The lettered panels are textures.
+  - Three-spoke leather steering wheel with satin inserts, the audio and
+    cruise-control switch pads, and the Nissan badge; column stalks and pedals.
+  - Console with the gloss-black gear knob, leather gaiter and satin surround,
+    the electronic parking-brake switch, two cup holders and the armrest.
+  - Cloth seats: charcoal bolsters with lighter patterned centre panels,
+    separate headrests, and a rear bench with three headrests. Seat belts.
+  - Door cards with armrests, chrome handles on gloss-black bezels,
+    speakers, pockets and window switches (four on the driver's door).
+  - Light-grey headliner and pillar trims, sun visors, interior mirror, map
+    lights, grab handles, carpeted floor and boot with wheel-house covers and
+    the parcel shelf.
 
 Size: **4341 mm** bumper to bumper (4356 mm with the front plate), **1806 mm**
 wide (2064 mm over the mirrors), **1590 mm** high, **2646 mm** wheelbase. For
@@ -60,10 +81,13 @@ blender/
   qashqai_features.py   feature outlines: windows, gaps, arches, lamps, grille, ...
   body_mesh.py          maps outlines onto the surface and cuts them in (Delaunay overlay)
   body_build.py         classifies the shell faces, builds glass, lamps, mouldings
-  qashqai_parts.py      wheels, liners, mirrors, handles, badges, plates, interior
+  qashqai_parts.py      wheels, liners, mirrors, handles, badges, plates, fog lamps
+  qashqai_interior.py   the interior: trims from the shell, dash, wheel, console, seats
   mesh_kit.py           small procedural mesh toolkit
   plate_texture.py      UK number plate texture (numpy glyphs, no fonts needed)
-  qashqai_textures.py   honeycomb grille and plastic grain textures
+  qashqai_textures.py   honeycomb grille, plastic grain and seat cloth textures
+  make_interior_textures.py  draws the lettered interior panels (needs Pillow)
+  assets/               those panels: centre stack, dials, wheel switch pads
   photo_cams.py         cameras solved from the reference photos
   render_views.py       Cycles studio renders (used with --render)
   verify_exports.py     re-imports the exports and checks size, pivots, UCX, slots
@@ -73,11 +97,11 @@ export/                 ready-to-use output (generated by the build script)
   SM_Qashqai_Body.fbx       body, trim, lamps, badges, plates (+ UCX_ convex hulls)
   SM_Qashqai_Glass.fbx      window glass
   SM_Qashqai_Lenses.fbx     headlamp, tail-lamp and fog-lamp lenses
-  SM_Qashqai_Interior.fbx   placeholder interior
+  SM_Qashqai_Interior.fbx   interior (dash, seats, trims, headliner, boot)
   SM_Qashqai_Wheel.fbx      one wheel, pivot at the hub centre
   Qashqai.fbx               the whole car in one FBX (for other DCC tools)
   Qashqai.glb               glTF binary with embedded textures (web, three.js, etc.)
-  textures/                 plates, honeycomb, plastic grain
+  textures/                 plates, honeycomb, grain, seat cloth, interior panels
   manifest.json             parts, material slots, wheel positions (read by the UE script)
 blend/Qashqai.blend     the Blender scene (textures referenced from export/textures)
 renders/                Cycles previews, including views from the photo cameras
@@ -99,9 +123,12 @@ The script creates, under `/Game/Vehicles/Qashqai2017`:
 
 | Asset | Notes |
 |---|---|
-| `Textures/T_*` | Plates, honeycomb and plastic grain. The normal maps are set to *NormalMap* compression with the green channel flipped (OpenGL → DirectX). |
+| `Textures/T_*` | Every texture listed in `manifest.json`: plates, honeycomb, plastic grain, seat cloth and the interior panels. The normal maps are set to *NormalMap* compression with the green channel flipped (OpenGL → DirectX). |
 | `Materials/M_QQ_Paint` | Clear-coat master used for the Gun Metallic paint and the alloys. Exposes `BaseColor`, `Metallic`, `Roughness`, `ClearCoat` and `ClearCoatRoughness`. |
-| `Materials/M_QQ_Solid`, `M_QQ_Glass`, `M_QQ_Plate`, `M_QQ_Grille` | Solid (with optional detail normal and emissive), translucent two-sided glass, plate and honeycomb masters. |
+| `Materials/M_QQ_Solid` | Solid colour with emissive and an optional tiling detail normal (the grain on the black plastics, leather and dash; the cloth weave on the headliner and seat bolsters). |
+| `Materials/M_QQ_Glass` | Translucent two-sided glass and lamp lenses. |
+| `Materials/M_QQ_Plate` | One texture across the UVs: the number plates, the centre stack, the dials and the wheel switch pads. |
+| `Materials/M_QQ_Grille` | Tiling colour and normal map: the grille honeycomb and the patterned seat cloth. |
 | `Materials/MI_QQ_*` | One instance per Blender material slot. |
 | `Meshes/SM_Qashqai_*` | Static meshes with generated lightmap UVs. The body carries three `UCX_` convex hulls. |
 | `BP_Qashqai2017` | `Body`, `Glass`, `Lenses`, `Interior` and `Wheel_FL/FR/RL/RR` components. |
@@ -116,6 +143,9 @@ its wheels.
   the editor. To steer the front wheels, change their yaw.
 - **Paint colour**: edit `MI_QQ_Paint` → `BaseColor`. Gun Metallic is linear
   (0.125, 0.128, 0.133).
+- **Interior**: `SM_Qashqai_Interior` is one mesh. Its trims face into the cabin,
+  so it works with the single-sided materials. The body shell has no inside
+  faces, so leave the interior component on for cameras inside the car.
 - **Lights**: `MI_QQ_LED` (daytime running lights) and `MI_QQ_BrakeLight` have
   an `EmissiveColor` parameter. It's black by default, as in the photos.
 - **Options**: set these environment variables before starting the editor, or
@@ -155,8 +185,12 @@ Useful flags:
 - `--ds 0.03`: coarser body mesh (default 0.02 m grid; about 200k body triangles)
 - `--no-export`, `--no-interior`
 
-Without `--render` a build takes about a minute. Each Cycles view takes 1–2
-minutes on 4 CPU cores.
+Without `--render` a build takes a little over a minute. Each Cycles view
+takes 1–4 minutes on 4 CPU cores (the interior views are the slow ones).
+
+The lettered interior panels (radio, climate control, dials, wheel switches)
+are pre-drawn PNGs in `blender/assets/`, so the build doesn't need Pillow. To
+change one, edit `make_interior_textures.py` and run it with Pillow installed.
 
 To change the shape, edit the profiles in `qashqai_body.py`, which are heights
 and widths keyed along the car. To move or reshape a window, lamp, gap or trim,
@@ -181,8 +215,13 @@ and cut in exactly, so every opening, lens and moulding lines up.
   creases stay crisp.
 - Glass, lenses, lamp housings, recessed grilles and arch mouldings are built
   from their regions of the shell, so each one fits its opening exactly.
-- Triangle counts: body 199k, glass 21k, lenses 5k, wheel 12k (×4), interior
-  1k.
+- The interior trims (headliner, pillars, door cards, boot sides) are a copy of
+  the shell offset inwards. They are thicker at the doors and thinner at the
+  roof, and they return to every window edge, so the cabin is closed and
+  follows the outside exactly. The colour changes (beltline, door-card
+  split, boot trim) are cut into that mesh as edges, so they run straight.
+- Triangle counts: body 201k, glass 21k, lenses 5k, interior 84k, wheel 12k
+  (×4).
 
 ## Accuracy
 
@@ -206,21 +245,32 @@ and cut in exactly, so every opening, lens and moulding lines up.
   key forward of X = 1.9 m, plus `X_F`).
 - **Paint**: the grey was calibrated in a render set up to match the 2019
   reference photos (same studio levels) against the Gun Metallic car in those
-  photos.
+  photos. The owner's car agrees: the front door in its side photo averages
+  RGB 153/153/154, and the same place in `renders/side.jpg` is 154/155/159.
+- **Owner's photos**: the dealer photos of the owner's car (when new) set the
+  interior layout, the seat cloth, the dashboard and centre stack, the
+  steering-wheel switches, the wheel design and the QASHQAI badge position.
+  Interior sizes (seat positions, dash depth, console height) are scaled from
+  the photos and the body. They are close but not measured.
 - **Guesses**: some parts can't be seen in any photo. These are the underside,
-  inside the lamps and the exact sections of the roof and bonnet. They follow
-  the visible construction and are plausible guesses rather than measurements.
+  inside the lamps, the exact sections of the roof and bonnet, and the hidden
+  parts of the interior (under the dash, the pedal box). They follow the
+  visible construction and are plausible guesses rather than measurements.
 
 ## Testing status
 
 - The Blender pipeline was run end to end with Blender 4.5.14 LTS (the PyPI `bpy`
   module). `verify_exports.py` passes. It checks the body length, centring and
-  roof height, the wheel size and pivot, the UCX naming and material slots in
-  every FBX, and the GLB node layout, wheel positions and textures.
+  roof height, the wheel size and pivot, and the UCX naming and material slots
+  in every FBX. It also checks that the interior sits inside the body with the
+  headliner and door cards facing the cabin, that the texture files exist, and
+  the GLB node layout, wheel positions and textures.
 - The Unreal script uses the same API as the bunk bed import script in this
   repository (`AssetImportTask`, `MaterialEditingLibrary`,
   `SubobjectDataSubsystem`, `EditorActorSubsystem`), plus the clear-coat and
-  translucency material settings. It has **not** been run inside a live Unreal
-  Editor in this environment. If a call differs in your engine version, the
+  translucency material settings. It was dry-run against a stand-in for the
+  `unreal` module (every texture imported, every texture parameter and
+  material slot assigned). It has **not** been run inside a live Unreal Editor
+  in this environment. If a call differs in your engine version, the
   Output Log shows the line, and the FBX files can always be imported by hand as
   described above.

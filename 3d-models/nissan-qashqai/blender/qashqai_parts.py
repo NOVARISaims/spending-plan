@@ -1,6 +1,7 @@
 """Procedural parts of the Qashqai that are not cut from the body shell:
-wheels, wheel-well liners, mirrors, handles, wipers, aerial, badges,
-number plates, lamp internals and a simple interior."""
+wheels, wheel-well liners, mirrors, handles, badges (the Nissan roundel and
+the QASHQAI script), number plates and fog lamps.  The interior is in
+qashqai_interior."""
 import math
 
 import bpy  # noqa: F401  (must precede bmesh / mathutils with the PyPI bpy module)
@@ -45,9 +46,16 @@ def _rim_barrel(kit):
                  (0.2150, -0.0900)], "wheel_inner", seg=96)
 
 
+# spoke pairs (owner's photo): two broad flat spokes per pair, joined at the
+# root and split by a slit that opens near the lug nuts and widens to ~2 cm
+SPOKE_R = [0.060, 0.085, 0.100, 0.150, 0.2075]
+SPOKE_OFFSET = [0.0075, 0.0115, 0.0145, 0.0200, 0.0265]    # spoke centre from the pair's axis
+SPOKE_W = [0.030, 0.025, 0.022, 0.027, 0.034]
+
+
 def _spokes(kit):
-    r0, r1 = 0.060, 0.2075
-    n_s = 9
+    r0, r1 = SPOKE_R[0], SPOKE_R[-1]
+    n_s = 11
     for k in range(5):
         base = math.radians(90.0 + 72.0 * k)
         for sgn in (-1.0, 1.0):
@@ -55,15 +63,15 @@ def _spokes(kit):
             for i in range(n_s):
                 t = i / (n_s - 1)
                 r = r0 + (r1 - r0) * t
-                phi = math.radians(4.0 + 4.5 * t) * sgn         # pairs join at the hub, split from mid-radius
-                w = 0.028 + 0.006 * t                             # slightly broader at the rim
+                phi = math.asin(float(np.interp(r, SPOKE_R, SPOKE_OFFSET)) / r) * sgn
+                w = float(np.interp(r, SPOKE_R, SPOKE_W))
                 hf = 0.066 + 0.026 * t ** 1.15                    # dished face
                 hb = hf - 0.030 + 0.008 * t
                 a = base + phi
                 c = np.array([math.cos(a), math.sin(a)])
                 s = np.array([-math.sin(a), math.cos(a)])
-                pts2 = [(-w / 2, hb), (-w / 2, hf - 0.004), (-w / 4, hf), (w / 4, hf), (w / 2, hf - 0.004),
-                        (w / 2, hb)]
+                pts2 = [(-w / 2, hb), (-w / 2, hf - 0.0025), (-w * 0.42, hf), (w * 0.42, hf),
+                        (w / 2, hf - 0.0025), (w / 2, hb)]
                 loop = []
                 for sx, hh in pts2:
                     q = c * r + s * sx
@@ -224,7 +232,9 @@ def build_logo(kit, frame, d, depth=0.010):
     inner = mk.circle2d(ring_i, 48)
     # ring as a tube-ish prism: outer wall + inner wall + face
     kit.prism(outer, 0.0, depth, frame, "chrome", cap0=False, cap1=False, sharp=False)
-    kit.prism(inner[::-1], 0.0, depth, frame, "chrome", cap0=False, cap1=False, sharp=False)
+    ki = len(inner)
+    wall = [o + u * p[0] + v * p[1] for p in inner] + [o + u * p[0] + v * p[1] + n * depth for p in inner]
+    kit.add(wall, [[ki + i, ki + (i + 1) % ki, (i + 1) % ki, i] for i in range(ki)], "chrome", sharp=False)
     ring_v = [o + u * p[0] + v * p[1] + n * depth for p in outer] + [o + u * p[0] + v * p[1] + n * depth for p in inner]
     faces = [[i, (i + 1) % 48, 48 + (i + 1) % 48, 48 + i] for i in range(48)]
     kit.add(ring_v, faces, "chrome", sharp=True)
@@ -232,6 +242,30 @@ def build_logo(kit, frame, d, depth=0.010):
     bw, bh = d * 1.02, d * 0.22
     kit.prism(mk.rounded_rect2d(bw, bh, bh * 0.2), 0.0, depth * 1.2, frame, "chrome")
     kit.prism(mk.rounded_rect2d(bw * 0.9, bh * 0.62, bh * 0.1), depth * 1.2, depth * 1.35, frame, "badge_dark")
+
+
+def text_mesh(text, cap_height, depth, spacing=1.0):
+    """Extruded letters from Blender's built-in font: vertices (text x to the
+    right, y up, z out of the face from 0 to depth) and faces."""
+    cu = bpy.data.curves.new("_badge", "FONT")
+    cu.body = text
+    cu.size = cap_height / 0.72
+    cu.align_x = "CENTER"
+    cu.align_y = "CENTER"
+    cu.extrude = depth / 2
+    cu.space_character = spacing
+    ob = bpy.data.objects.new("_badge", cu)
+    bpy.context.scene.collection.objects.link(ob)
+    dg = bpy.context.evaluated_depsgraph_get()
+    ev = ob.evaluated_get(dg)
+    me = ev.to_mesh()
+    V = np.array([v.co[:] for v in me.vertices]) + np.array([0.0, 0.0, depth / 2])
+    faces = [list(p.vertices) for p in me.polygons]
+    ev.to_mesh_clear()
+    bpy.data.objects.remove(ob)
+    bpy.data.curves.remove(cu)
+    bpy.context.view_layer.update()
+    return V, faces
 
 
 # ---------------------------------------------------------------------------
@@ -268,46 +302,3 @@ def build_fog(kit, c, n, w, h, ring):
     kit.loft([ell(ri, qi, -0.040), ell(ri, qi, -0.004)], "lamp_black", closed=True, caps=True)
     cup = [ell(ri * 0.55, qi * 0.75, -0.012), ell(ri * 0.35, qi * 0.5, -0.026), ell(ri * 0.1, qi * 0.15, -0.032)]
     kit.loft(cup, "lamp_chrome", closed=True, caps=False)
-
-
-# ---------------------------------------------------------------------------
-# Simple interior (placeholder until interior photos are available)
-# ---------------------------------------------------------------------------
-def build_interior(kit):
-    # floor pan and tunnel
-    kit.box((-0.05, 0.0, 0.26), (2.6, 1.40, 0.04), "interior_dark")
-    kit.box((0.35, 0.0, 0.36), (1.5, 0.22, 0.18), "interior_dark")
-    # dashboard
-    secs = []
-    for y in np.linspace(-0.70, 0.70, 8):
-        secs.append([Vector((1.10, y, 0.62)), Vector((1.12, y, 0.98)), Vector((0.98, y, 1.10)),
-                     Vector((0.74, y, 1.07)), Vector((0.62, y, 0.93)), Vector((0.66, y, 0.70))])
-    kit.loft(secs, "interior_dark", closed=True, caps=True)
-    # steering wheel (right-hand drive, UK car)
-    sw = Matrix.Translation((0.47, -0.37, 0.98)) @ Matrix.Rotation(math.radians(-24), 4, "Y")
-    wheel = mk.Kit("sw")
-    wheel.revolve([(0.170, -0.012), (0.182, 0.0), (0.170, 0.012), (0.158, 0.0)], "interior_dark", seg=40,
-                  axis="x", closed=True)
-    wheel.revolve([(0.0, 0.03), (0.065, 0.025), (0.070, -0.02), (0.0, -0.03)][::-1], "interior_dark", seg=24, axis="x")
-    for a in (math.radians(200), math.radians(340), math.radians(270)):
-        wheel.box((0.0, 0.11 * math.cos(a), 0.11 * math.sin(a)), (0.02, 0.10, 0.03), "interior_dark",
-                  rot=Matrix.Rotation(a, 3, "X"))
-    kit.merge(wheel, sw)
-    # seats
-    def seat(x, y, w, back_h=0.62):
-        kit.box((x, y, 0.47), (0.50, w, 0.12), "seat")                     # cushion
-        kit.box((x + 0.02, y, 0.40), (0.46, w * 0.8, 0.10), "interior_dark")
-        rot = Matrix.Rotation(math.radians(-14), 3, "Y")
-        kit.box((x - 0.30, y, 0.80), (0.12, w, back_h), "seat", rot=rot)    # backrest
-        kit.box((x - 0.38, y, 1.17), (0.10, w * 0.52, 0.16), "seat", rot=rot)  # head rest
-    seat(0.05, 0.37, 0.52)
-    seat(0.05, -0.37, 0.52)
-    kit.box((-0.78, 0.0, 0.46), (0.50, 1.30, 0.12), "seat")
-    rot = Matrix.Rotation(math.radians(-18), 3, "Y")
-    kit.box((-1.08, 0.0, 0.78), (0.12, 1.30, 0.60), "seat", rot=rot)
-    for y in (-0.45, 0.0, 0.45):
-        kit.box((-1.16, y, 1.14), (0.09, 0.26, 0.14), "seat", rot=rot)
-    # parcel shelf and door cards
-    kit.box((-1.55, 0.0, 1.05), (0.55, 1.35, 0.02), "interior_dark")
-    for sgn in (1, -1):
-        kit.box((-0.1, 0.72 * sgn, 0.80), (2.0, 0.04, 0.45), "interior_dark")

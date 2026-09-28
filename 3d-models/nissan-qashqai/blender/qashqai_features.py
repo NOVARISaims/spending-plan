@@ -147,6 +147,9 @@ SPOILER_BAND = [(0.000, 1.482), (0.450, 1.478), (0.560, 1.462), (0.575, 1.440), 
 # Rear (rear view, Y >= 0)
 # ---------------------------------------------------------------------------
 LOGO_REAR = dict(y=0.0, z=1.060, d=0.115)
+# chrome "QASHQAI" script on the lower corner of the tailgate, car's left
+# (owner's rear photo)
+BADGE_REAR = dict(text="QASHQAI", y=0.430, z=0.883, cap=0.022, depth=0.003, spacing=1.12)
 PLATE_REAR = dict(z=0.912, w=0.520, h=0.111)
 PLATE_RECESS = [(0.000, 0.988), (0.285, 0.988), (0.300, 0.972), (0.300, 0.852), (0.285, 0.838),
                 (0.000, 0.838)]

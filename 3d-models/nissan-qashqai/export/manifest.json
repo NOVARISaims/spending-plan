@@ -28,7 +28,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_Chrome": {
@@ -49,7 +50,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_BlackGloss": {
@@ -70,7 +72,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_PanelGap": {
@@ -91,7 +94,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_PlasticBlack": {
@@ -112,7 +116,10 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {
+        "DetailNormal": "grain_normal"
+      },
+      "detail_normal_strength": 0.35,
       "uv_tiling": 25.0
     },
     "M_Liner": {
@@ -133,7 +140,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_Underbody": {
@@ -154,7 +162,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_Glass": {
@@ -175,7 +184,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_GlassFrit": {
@@ -196,7 +206,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_LensClear": {
@@ -217,7 +228,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_LampChrome": {
@@ -238,7 +250,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_LampReflector": {
@@ -259,7 +272,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_LampBlack": {
@@ -280,7 +294,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_LED_DRL": {
@@ -301,7 +316,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_TailLensRed": {
@@ -322,7 +338,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_TailLensClear": {
@@ -343,7 +360,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_TailInner": {
@@ -364,7 +382,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_BrakeLight": {
@@ -385,7 +404,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_Reflector": {
@@ -406,7 +426,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_Indicator": {
@@ -427,7 +448,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_GrilleHoneycomb": {
@@ -448,7 +470,11 @@
         0.0,
         0.0
       ],
-      "texture": "honeycomb",
+      "textures": {
+        "BaseColorMap": "honeycomb_base",
+        "NormalMap": "honeycomb_normal"
+      },
+      "detail_normal_strength": 0.0,
       "uv_tiling": 10.0
     },
     "M_Tyre": {
@@ -469,7 +495,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_Alloy": {
@@ -490,16 +517,17 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_WheelInner": {
       "ue_instance": "MI_QQ_WheelInner",
       "ue_parent": "M_QQ_Solid",
       "base_color_linear": [
-        0.05,
-        0.05,
-        0.055
+        0.03,
+        0.03,
+        0.033
       ],
       "roughness": 0.6,
       "metallic": 0.5,
@@ -511,7 +539,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_LugNut": {
@@ -532,18 +561,19 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_BrakeDisc": {
       "ue_instance": "MI_QQ_BrakeDisc",
       "ue_parent": "M_QQ_Solid",
       "base_color_linear": [
-        0.28,
-        0.28,
-        0.28
+        0.16,
+        0.145,
+        0.13
       ],
-      "roughness": 0.42,
+      "roughness": 0.5,
       "metallic": 1.0,
       "clear_coat": 0.0,
       "clear_coat_roughness": 0.0,
@@ -553,7 +583,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_BrakeHat": {
@@ -574,7 +605,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_Caliper": {
@@ -595,7 +627,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_MirrorGlass": {
@@ -616,7 +649,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_BadgeDark": {
@@ -637,7 +671,8 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_PlateFront": {
@@ -658,7 +693,10 @@
         0.0,
         0.0
       ],
-      "texture": "plate_front",
+      "textures": {
+        "PlateTexture": "plate_front"
+      },
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_PlateRear": {
@@ -679,7 +717,10 @@
         0.0,
         0.0
       ],
-      "texture": "plate_rear",
+      "textures": {
+        "PlateTexture": "plate_rear"
+      },
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_PlateEdge": {
@@ -700,18 +741,19 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {},
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     },
     "M_InteriorPlastic": {
       "ue_instance": "MI_QQ_InteriorPlastic",
       "ue_parent": "M_QQ_Solid",
       "base_color_linear": [
-        0.018,
-        0.018,
-        0.02
+        0.016,
+        0.016,
+        0.018
       ],
-      "roughness": 0.7,
+      "roughness": 0.62,
       "metallic": 0.0,
       "clear_coat": 0.0,
       "clear_coat_roughness": 0.0,
@@ -721,16 +763,91 @@
         0.0,
         0.0
       ],
-      "texture": null,
-      "uv_tiling": 1.0
+      "textures": {
+        "DetailNormal": "grain_normal"
+      },
+      "detail_normal_strength": 0.35,
+      "uv_tiling": 25.0
     },
-    "M_SeatFabric": {
-      "ue_instance": "MI_QQ_SeatFabric",
+    "M_InteriorSoft": {
+      "ue_instance": "MI_QQ_InteriorSoft",
       "ue_parent": "M_QQ_Solid",
       "base_color_linear": [
-        0.022,
-        0.022,
-        0.025
+        0.02,
+        0.02,
+        0.022
+      ],
+      "roughness": 0.55,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "textures": {
+        "DetailNormal": "grain_normal"
+      },
+      "detail_normal_strength": 0.5,
+      "uv_tiling": 18.0
+    },
+    "M_InteriorGrey": {
+      "ue_instance": "MI_QQ_InteriorGrey",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.04,
+        0.04,
+        0.043
+      ],
+      "roughness": 0.6,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "textures": {
+        "DetailNormal": "grain_normal"
+      },
+      "detail_normal_strength": 0.35,
+      "uv_tiling": 25.0
+    },
+    "M_DoorCard": {
+      "ue_instance": "MI_QQ_DoorCard",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.024,
+        0.024,
+        0.026
+      ],
+      "roughness": 0.66,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "textures": {
+        "DetailNormal": "grain_normal"
+      },
+      "detail_normal_strength": 0.35,
+      "uv_tiling": 25.0
+    },
+    "M_Headliner": {
+      "ue_instance": "MI_QQ_Headliner",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.42,
+        0.42,
+        0.41
       ],
       "roughness": 0.95,
       "metallic": 0.0,
@@ -742,18 +859,293 @@
         0.0,
         0.0
       ],
-      "texture": null,
+      "textures": {
+        "DetailNormal": "seat_fabric_normal"
+      },
+      "detail_normal_strength": 0.25,
+      "uv_tiling": 40.0
+    },
+    "M_PillarTrim": {
+      "ue_instance": "MI_QQ_PillarTrim",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.33,
+        0.33,
+        0.325
+      ],
+      "roughness": 0.7,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "textures": {
+        "DetailNormal": "grain_normal"
+      },
+      "detail_normal_strength": 0.25,
+      "uv_tiling": 25.0
+    },
+    "M_Carpet": {
+      "ue_instance": "MI_QQ_Carpet",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.022,
+        0.022,
+        0.023
+      ],
+      "roughness": 1.0,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "textures": {
+        "DetailNormal": "seat_fabric_normal"
+      },
+      "detail_normal_strength": 0.6,
+      "uv_tiling": 60.0
+    },
+    "M_InteriorSatin": {
+      "ue_instance": "MI_QQ_InteriorSatin",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.55,
+        0.56,
+        0.58
+      ],
+      "roughness": 0.28,
+      "metallic": 1.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "textures": {},
+      "detail_normal_strength": 0.0,
+      "uv_tiling": 1.0
+    },
+    "M_Leather": {
+      "ue_instance": "MI_QQ_Leather",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.017,
+        0.017,
+        0.018
+      ],
+      "roughness": 0.45,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "textures": {
+        "DetailNormal": "grain_normal"
+      },
+      "detail_normal_strength": 0.6,
+      "uv_tiling": 40.0
+    },
+    "M_SeatFabric": {
+      "ue_instance": "MI_QQ_SeatFabric",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.016,
+        0.016,
+        0.018
+      ],
+      "roughness": 0.95,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "textures": {
+        "DetailNormal": "seat_fabric_normal"
+      },
+      "detail_normal_strength": 0.3,
+      "uv_tiling": 45.0
+    },
+    "M_SeatFabricPattern": {
+      "ue_instance": "MI_QQ_SeatFabricPattern",
+      "ue_parent": "M_QQ_Grille",
+      "base_color_linear": [
+        0.07,
+        0.07,
+        0.075
+      ],
+      "roughness": 0.92,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "textures": {
+        "BaseColorMap": "seat_fabric_base",
+        "NormalMap": "seat_fabric_normal"
+      },
+      "detail_normal_strength": 0.0,
+      "uv_tiling": 25.0
+    },
+    "M_SeatBelt": {
+      "ue_instance": "MI_QQ_SeatBelt",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.03,
+        0.03,
+        0.032
+      ],
+      "roughness": 0.75,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "textures": {},
+      "detail_normal_strength": 0.0,
+      "uv_tiling": 1.0
+    },
+    "M_CentreStack": {
+      "ue_instance": "MI_QQ_CentreStack",
+      "ue_parent": "M_QQ_Plate",
+      "base_color_linear": [
+        0.1,
+        0.1,
+        0.1
+      ],
+      "roughness": 0.18,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "textures": {
+        "PlateTexture": "stack_panel"
+      },
+      "detail_normal_strength": 0.0,
+      "uv_tiling": 1.0
+    },
+    "M_Dials": {
+      "ue_instance": "MI_QQ_Dials",
+      "ue_parent": "M_QQ_Plate",
+      "base_color_linear": [
+        0.1,
+        0.1,
+        0.1
+      ],
+      "roughness": 0.3,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "textures": {
+        "PlateTexture": "dials"
+      },
+      "detail_normal_strength": 0.0,
+      "uv_tiling": 1.0
+    },
+    "M_WheelSwitches": {
+      "ue_instance": "MI_QQ_WheelSwitches",
+      "ue_parent": "M_QQ_Plate",
+      "base_color_linear": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "roughness": 0.35,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "textures": {
+        "PlateTexture": "switches"
+      },
+      "detail_normal_strength": 0.0,
       "uv_tiling": 1.0
     }
   },
   "textures": {
-    "plate_front": "textures/T_Plate_Front.png",
-    "plate_rear": "textures/T_Plate_Rear.png",
-    "honeycomb_base": "textures/T_Honeycomb_BaseColor.png",
-    "honeycomb_normal": "textures/T_Honeycomb_Normal.png",
-    "plastic_grain_normal": "textures/T_PlasticGrain_Normal.png",
-    "normal_convention": "OpenGL (+Y); flip green in Unreal"
+    "plate_front": {
+      "file": "textures/T_Plate_Front.png",
+      "kind": "color"
+    },
+    "plate_rear": {
+      "file": "textures/T_Plate_Rear.png",
+      "kind": "color"
+    },
+    "honeycomb_base": {
+      "file": "textures/T_Honeycomb_BaseColor.png",
+      "kind": "color"
+    },
+    "honeycomb_normal": {
+      "file": "textures/T_Honeycomb_Normal.png",
+      "kind": "normal"
+    },
+    "grain_normal": {
+      "file": "textures/T_PlasticGrain_Normal.png",
+      "kind": "normal"
+    },
+    "seat_fabric_base": {
+      "file": "textures/T_SeatFabric_BaseColor.png",
+      "kind": "color"
+    },
+    "seat_fabric_normal": {
+      "file": "textures/T_SeatFabric_Normal.png",
+      "kind": "normal"
+    },
+    "stack_panel": {
+      "file": "textures/T_Interior_Stack.png",
+      "kind": "color"
+    },
+    "dials": {
+      "file": "textures/T_Interior_Dials.png",
+      "kind": "color"
+    },
+    "switches": {
+      "file": "textures/T_Interior_Switches.png",
+      "kind": "color"
+    }
   },
+  "normal_map_convention": "OpenGL (+Y); flip green in Unreal",
   "wheels": {
     "FL": {
       "blender_m": [
@@ -912,7 +1304,7 @@
         }
       ],
       "collision_hulls": 3,
-      "triangles": 198672
+      "triangles": 201388
     },
     {
       "name": "SM_Qashqai_Glass",
@@ -948,7 +1340,7 @@
         }
       ],
       "collision_hulls": 0,
-      "triangles": 4588
+      "triangles": 5216
     },
     {
       "name": "SM_Qashqai_Interior",
@@ -959,12 +1351,100 @@
           "ue_instance": "MI_QQ_InteriorPlastic"
         },
         {
+          "slot": "M_Headliner",
+          "ue_instance": "MI_QQ_Headliner"
+        },
+        {
+          "slot": "M_Carpet",
+          "ue_instance": "MI_QQ_Carpet"
+        },
+        {
+          "slot": "M_InteriorSoft",
+          "ue_instance": "MI_QQ_InteriorSoft"
+        },
+        {
+          "slot": "M_DoorCard",
+          "ue_instance": "MI_QQ_DoorCard"
+        },
+        {
+          "slot": "M_InteriorGrey",
+          "ue_instance": "MI_QQ_InteriorGrey"
+        },
+        {
+          "slot": "M_Dials",
+          "ue_instance": "MI_QQ_Dials"
+        },
+        {
+          "slot": "M_InteriorSatin",
+          "ue_instance": "MI_QQ_InteriorSatin"
+        },
+        {
+          "slot": "M_BlackGloss",
+          "ue_instance": "MI_QQ_BlackGloss"
+        },
+        {
+          "slot": "M_CentreStack",
+          "ue_instance": "MI_QQ_CentreStack"
+        },
+        {
+          "slot": "M_PlasticBlack",
+          "ue_instance": "MI_QQ_PlasticBlack"
+        },
+        {
+          "slot": "M_BrakeLight",
+          "ue_instance": "MI_QQ_BrakeLight"
+        },
+        {
+          "slot": "M_Leather",
+          "ue_instance": "MI_QQ_Leather"
+        },
+        {
+          "slot": "M_Chrome",
+          "ue_instance": "MI_QQ_Chrome"
+        },
+        {
+          "slot": "M_BadgeDark",
+          "ue_instance": "MI_QQ_BadgeDark"
+        },
+        {
+          "slot": "M_WheelSwitches",
+          "ue_instance": "MI_QQ_WheelSwitches"
+        },
+        {
           "slot": "M_SeatFabric",
           "ue_instance": "MI_QQ_SeatFabric"
+        },
+        {
+          "slot": "M_SeatFabricPattern",
+          "ue_instance": "MI_QQ_SeatFabricPattern"
+        },
+        {
+          "slot": "M_SeatBelt",
+          "ue_instance": "MI_QQ_SeatBelt"
+        },
+        {
+          "slot": "M_PillarTrim",
+          "ue_instance": "MI_QQ_PillarTrim"
+        },
+        {
+          "slot": "M_MirrorGlass",
+          "ue_instance": "MI_QQ_MirrorGlass"
+        },
+        {
+          "slot": "M_LensClear",
+          "ue_instance": "MI_QQ_LensClear"
+        },
+        {
+          "slot": "M_Tyre",
+          "ue_instance": "MI_QQ_Tyre"
+        },
+        {
+          "slot": "M_WheelInner",
+          "ue_instance": "MI_QQ_WheelInner"
         }
       ],
       "collision_hulls": 0,
-      "triangles": 808
+      "triangles": 84282
     },
     {
       "name": "SM_Qashqai_Wheel",
@@ -1004,7 +1484,7 @@
         }
       ],
       "collision_hulls": 0,
-      "triangles": 11650
+      "triangles": 11890
     }
   ]
 }

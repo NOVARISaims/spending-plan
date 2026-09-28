@@ -29,7 +29,15 @@ VIEWS = {
     # roughly the viewpoint of the 2019 reference photo, for the paint colour
     "paint_check": dict(loc=(-5.6, 4.6, 1.25), look_at=(-0.2, 0.0, 0.70), lens=45.0, res=(1024, 768)),
     "wheel": dict(loc=(1.35, 2.35, 0.45), look_at=(1.30, 0.80, 0.33), lens=50.0, res=(1000, 1000)),
+    "detail_rear": dict(loc=(-3.35, 1.55, 1.05), look_at=(-2.05, 0.30, 0.90), lens=50.0, res=(1400, 900)),
     "detail_front": dict(loc=(3.35, 1.75, 1.10), look_at=(1.98, 0.25, 0.72), lens=50.0, res=(1400, 900)),
+    # inside the cabin (a soft fill light stands in for daylight through the roof)
+    "interior_dash": dict(loc=(-0.48, 0.0, 1.30), look_at=(0.62, -0.10, 0.88), lens=18.0, res=(1600, 1000),
+                          interior=True),
+    "interior_front": dict(loc=(0.28, 0.58, 1.20), look_at=(-0.25, -0.42, 0.78), lens=15.0, res=(1600, 1000),
+                           interior=True),
+    "interior_rear": dict(loc=(0.30, -0.12, 1.26), look_at=(-1.10, 0.10, 0.74), lens=15.0, res=(1600, 1000),
+                          interior=True),
     "photo_left": dict(photo=True, res=(1024, 576)),
     "photo_right": dict(photo=True, res=(1024, 576)),
     "photo_front_left": dict(photo=True, res=(1024, 576)),
@@ -184,12 +192,45 @@ def _composite(path, bg=(0.78, 0.775, 0.78), jpeg_quality=None):
     return path
 
 
+def cabin_fill(scene):
+    """Soft light under the roof for the interior views (the headliner shades
+    the cabin from the studio lights)."""
+    lights = []
+    for name, loc, size, energy in (("CabinFill", (-0.35, 0.0, 1.40), (1.3, 0.9), 14.0),
+                                    ("CabinFillFront", (0.45, 0.0, 1.32), (0.6, 0.9), 5.0)):
+        light = bpy.data.lights.new(name, "AREA")
+        light.shape = "RECTANGLE"
+        light.size, light.size_y = size
+        light.energy = energy
+        ob = bpy.data.objects.new(name, light)
+        ob.location = loc
+        ob.rotation_euler = (0.0, 0.0, 0.0)             # pointing down
+        ob.visible_camera = False
+        scene.collection.objects.link(ob)
+        lights.append(ob)
+    # light bounced off the seats and floor onto the headliner
+    light = bpy.data.lights.new("CabinBounce", "AREA")
+    light.shape = "RECTANGLE"
+    light.size, light.size_y = 1.6, 1.0
+    light.energy = 10.0
+    ob = bpy.data.objects.new("CabinBounce", light)
+    ob.location = (-0.35, 0.0, 0.95)
+    ob.rotation_euler = (math.pi, 0.0, 0.0)             # pointing up
+    ob.visible_camera = False
+    scene.collection.objects.link(ob)
+    lights.append(ob)
+    return lights
+
+
 def render_all(scene, objects, wheels, out_dir, samples, only=(), jpeg_quality=None):
     os.makedirs(out_dir, exist_ok=True)
     setup_studio(scene, samples)
+    fill = cabin_fill(scene)
     for name, v in VIEWS.items():
         if only and name not in only:
             continue
+        for ob in fill:
+            ob.hide_render = not v.get("interior", False)
         scene.render.resolution_x, scene.render.resolution_y = v["res"]
         scene.render.resolution_percentage = 100
         scene.camera = _camera(scene, "Cam_" + name if not v.get("photo") else name, v)

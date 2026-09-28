@@ -4,9 +4,10 @@
     python verify_exports.py [--dir ../export]      # PyPI bpy module
 
 Checks the body size and pivot, the wheel size and pivot, UCX collision and
-material slots in every FBX, and the node / material / texture layout of
-the GLB (four wheels at the manifest positions).  Exits non-zero on the
-first failed check.
+material slots in every FBX, that the interior sits inside the body with its
+trims facing into the cabin, the texture files, and the node / material /
+texture layout of the GLB (four wheels at the manifest positions).  Exits
+non-zero on the first failed check.
 """
 import argparse
 import json
@@ -95,6 +96,43 @@ def check_fbx(export_dir, manifest):
     if abs(dia - 2 * manifest["wheel_radius_cm"] / 100.0) > TOL or abs(lo.x + hi.x) > TOL or abs(lo.z + hi.z) > TOL:
         fail("wheel pivot / size wrong: %s %s" % (lo, hi))
     print("  wheel %.3f m diameter, pivot at the hub centre" % dia)
+    check_interior(export_dir, boxes)
+
+
+def check_interior(export_dir, boxes):
+    """Interior inside the shell; headliner and door cards face the cabin
+    (single-sided materials in Unreal would hide them otherwise)."""
+    blo, bhi = boxes["SM_Qashqai_Body"]
+    lo, hi = boxes["SM_Qashqai_Interior"]
+    if lo.x < blo.x or hi.x > bhi.x or lo.y < blo.y or hi.y > bhi.y or lo.z < 0.15 or hi.z > 1.6:
+        fail("interior pokes out of the body: %s .. %s" % (tuple(lo), tuple(hi)))
+    render, _ = import_fbx(os.path.join(export_dir, "SM_Qashqai_Interior.fbx"))
+    ob = render[0]
+    me = ob.data
+    names = [s.material.name.split(".")[0] if s.material else "" for s in ob.material_slots]
+    roof, cards = Vector(), Vector()
+    for p in me.polygons:
+        c = ob.matrix_world @ p.center
+        n = (ob.matrix_world.to_3x3() @ p.normal) * p.area
+        m = names[p.material_index]
+        if m == "M_Headliner" and c.z > 1.42 and abs(c.x) < 0.8:
+            roof += n
+        if m in ("M_DoorCard", "M_InteriorSoft") and c.y > 0.6 and 0.5 < c.z < 1.0 and -1.0 < c.x < 0.7:
+            cards += n
+    if roof.length == 0 or roof.normalized().z > -0.8:
+        fail("headliner does not face down into the cabin: %s" % tuple(roof))
+    if cards.length == 0 or cards.normalized().y > -0.8:
+        fail("left door cards do not face into the cabin: %s" % tuple(cards))
+    print("  interior inside the body; headliner and door cards face the cabin (%d triangles)"
+          % sum(len(p.vertices) - 2 for p in me.polygons))
+
+
+def check_textures(export_dir, manifest):
+    for key, info in manifest["textures"].items():
+        path = os.path.join(export_dir, info["file"])
+        if not os.path.isfile(path):
+            fail("texture %s missing: %s" % (key, path))
+    print("  %d texture files present" % len(manifest["textures"]))
 
 
 def read_glb(path):
@@ -125,8 +163,12 @@ def check_glb(export_dir, manifest):
     for name in ("M_PlateFront", "M_PlateRear"):
         if "baseColorTexture" not in mats[name]["pbrMetallicRoughness"]:
             fail("GLB %s has no plate texture" % name)
-    if "normalTexture" not in mats["M_GrilleHoneycomb"]:
-        fail("GLB grille material has no normal map")
+    for name in ("M_CentreStack", "M_Dials", "M_WheelSwitches"):
+        if "baseColorTexture" not in mats[name]["pbrMetallicRoughness"]:
+            fail("GLB %s has no panel texture" % name)
+    for name in ("M_GrilleHoneycomb", "M_SeatFabricPattern"):
+        if "normalTexture" not in mats[name] or "baseColorTexture" not in mats[name]["pbrMetallicRoughness"]:
+            fail("GLB %s lacks its tiled textures" % name)
     print("  GLB nodes: %s" % ", ".join(names))
     print("  GLB %d materials, %d images" % (len(mats), len(gltf.get("images", []))))
 
@@ -140,6 +182,8 @@ def main(argv):
         manifest = json.load(fh)
     print("FBX files:")
     check_fbx(export_dir, manifest)
+    print("Textures:")
+    check_textures(export_dir, manifest)
     print("GLB:")
     check_glb(export_dir, manifest)
     print("All export checks passed.")

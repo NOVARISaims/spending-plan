@@ -1,5 +1,6 @@
 """Textures for the Qashqai, generated with numpy: number plates, the
-honeycomb grille mesh and a fine grain for the black plastic trim."""
+honeycomb grille mesh, a fine grain for the black plastic trim and the seat
+cloth.  (The lettered interior panels are drawn by make_interior_textures.)"""
 import math
 
 import numpy as np
@@ -58,6 +59,30 @@ def grain(size=512, seed=7):
     n = np.stack([-gx, gy, np.ones_like(gx)], -1)
     n /= np.linalg.norm(n, axis=-1, keepdims=True)
     return n * 0.5 + 0.5
+
+
+def seat_fabric(size=256, dots=16, checks=2):
+    """Tileable seat cloth from the owner's photos: a fine two-tone knit (a
+    light fleck on a charcoal ground, `dots` per tile) whose fleck brightness
+    steps in a larger checker (`checks` per tile).  Returns base colour
+    (H, W, 3) and an OpenGL normal map (H, W, 3) for the knit relief."""
+    ys, xs = np.mgrid[0:size, 0:size].astype(float) + 0.5
+    u, v = xs / size, ys / size
+    # knit: rows of small raised loops, offset every other row
+    pu = u * dots
+    pv = v * dots
+    row = np.floor(pv)
+    pu = pu + 0.5 * (row % 2)
+    fu, fv = pu - np.floor(pu) - 0.5, pv - row - 0.5
+    loop = np.clip(1.0 - np.sqrt((fu / 0.42) ** 2 + (fv / 0.34) ** 2), 0.0, 1.0)
+    check = ((np.floor(u * checks) + np.floor(v * checks)) % 2).astype(float)
+    fleck = loop ** 1.2 * (0.6 + 0.4 * check)
+    base = np.stack([0.020 + 0.26 * fleck] * 3, -1)
+    base[..., 2] += 0.012 * fleck                      # the grey has a faint blue cast
+    gy, gx = np.gradient(loop * 3.0)
+    n = np.stack([-gx, gy, np.ones_like(gx)], -1)
+    n /= np.linalg.norm(n, axis=-1, keepdims=True)
+    return base, n * 0.5 + 0.5
 
 
 def plates(text):
