@@ -1,0 +1,260 @@
+{
+  "name": "L-shaped high sleeper bunk bed with wardrobe (white & oak)",
+  "reference": "Habitat Norah L Shaped Single Bunk Bed - White & Oak",
+  "units": "centimetres",
+  "overall_cm": {
+    "length_x": 214.2,
+    "depth_y": 215.5,
+    "height_z": 160.4
+  },
+  "pivot": "floor level, back (wall) face, centred along the length",
+  "unreal_mapping": "UE(x, y, z) = Blender(x, -y, z) * 100 (FBX -Z forward / Y up)",
+  "materials": {
+    "M_WhiteLaminate": {
+      "ue_instance": "MI_BB_WhiteLaminate",
+      "ue_parent": "M_BB_Solid",
+      "base_color_linear": [
+        0.83,
+        0.83,
+        0.835
+      ],
+      "roughness": 0.42,
+      "metallic": 0.0
+    },
+    "M_Oak": {
+      "ue_instance": "MI_BB_Oak",
+      "ue_parent": "M_BB_Wood",
+      "base_color_linear": [
+        0.6,
+        0.46,
+        0.33
+      ],
+      "roughness": 0.5,
+      "metallic": 0.0
+    },
+    "M_DoorBacker": {
+      "ue_instance": "MI_BB_DoorBacker",
+      "ue_parent": "M_BB_Solid",
+      "base_color_linear": [
+        0.012,
+        0.01,
+        0.009
+      ],
+      "roughness": 0.8,
+      "metallic": 0.0
+    },
+    "M_MattressTop": {
+      "ue_instance": "MI_BB_MattressTop",
+      "ue_parent": "M_BB_Solid",
+      "base_color_linear": [
+        0.74,
+        0.74,
+        0.74
+      ],
+      "roughness": 0.95,
+      "metallic": 0.0
+    },
+    "M_MattressSide": {
+      "ue_instance": "MI_BB_MattressSide",
+      "ue_parent": "M_BB_Solid",
+      "base_color_linear": [
+        0.075,
+        0.076,
+        0.082
+      ],
+      "roughness": 0.95,
+      "metallic": 0.0
+    },
+    "M_ScrewCap": {
+      "ue_instance": "MI_BB_ScrewCap",
+      "ue_parent": "M_BB_Solid",
+      "base_color_linear": [
+        0.32,
+        0.32,
+        0.33
+      ],
+      "roughness": 0.45,
+      "metallic": 0.0
+    },
+    "M_Chrome": {
+      "ue_instance": "MI_BB_Chrome",
+      "ue_parent": "M_BB_Solid",
+      "base_color_linear": [
+        0.9,
+        0.9,
+        0.9
+      ],
+      "roughness": 0.18,
+      "metallic": 1.0
+    }
+  },
+  "textures": {
+    "base_color": "textures/T_Oak_BaseColor.jpg",
+    "roughness": "textures/T_Oak_Roughness.png",
+    "normal": "textures/T_Oak_Normal.png",
+    "normal_convention": "OpenGL (+Y); flip green in Unreal",
+    "uv_scale": "1 UV unit = 100 cm"
+  },
+  "parts": [
+    {
+      "name": "SM_LBunkBed_Frame",
+      "fbx": "SM_LBunkBed_Frame.fbx",
+      "material_slots": [
+        {
+          "slot": "M_Oak",
+          "ue_instance": "MI_BB_Oak"
+        },
+        {
+          "slot": "M_WhiteLaminate",
+          "ue_instance": "MI_BB_WhiteLaminate"
+        },
+        {
+          "slot": "M_ScrewCap",
+          "ue_instance": "MI_BB_ScrewCap"
+        },
+        {
+          "slot": "M_Chrome",
+          "ue_instance": "MI_BB_Chrome"
+        }
+      ],
+      "pivot_blender_m": [
+        -0.0,
+        0.0,
+        0.0
+      ],
+      "pivot_unreal_cm": [
+        -0.0,
+        -0.0,
+        0.0
+      ],
+      "collision_boxes": 21,
+      "triangles": 15564
+    },
+    {
+      "name": "SM_LBunkBed_Door_L",
+      "fbx": "SM_LBunkBed_Door_L.fbx",
+      "material_slots": [
+        {
+          "slot": "M_Oak",
+          "ue_instance": "MI_BB_Oak"
+        },
+        {
+          "slot": "M_WhiteLaminate",
+          "ue_instance": "MI_BB_WhiteLaminate"
+        },
+        {
+          "slot": "M_DoorBacker",
+          "ue_instance": "MI_BB_DoorBacker"
+        }
+      ],
+      "pivot_blender_m": [
+        -1.05,
+        -0.95,
+        0.076
+      ],
+      "pivot_unreal_cm": [
+        -105.0,
+        95.0,
+        7.6
+      ],
+      "collision_boxes": 1,
+      "triangles": 972,
+      "hinge": {
+        "axis": "Z",
+        "max_open_deg": 100.0,
+        "blender_open_sign": -1.0,
+        "unreal_open_yaw_sign": 1.0,
+        "gltf_open_sign": -1.0
+      }
+    },
+    {
+      "name": "SM_LBunkBed_Door_R",
+      "fbx": "SM_LBunkBed_Door_R.fbx",
+      "material_slots": [
+        {
+          "slot": "M_Oak",
+          "ue_instance": "MI_BB_Oak"
+        },
+        {
+          "slot": "M_WhiteLaminate",
+          "ue_instance": "MI_BB_WhiteLaminate"
+        },
+        {
+          "slot": "M_DoorBacker",
+          "ue_instance": "MI_BB_DoorBacker"
+        }
+      ],
+      "pivot_blender_m": [
+        -0.335,
+        -0.95,
+        0.076
+      ],
+      "pivot_unreal_cm": [
+        -33.5,
+        95.0,
+        7.6
+      ],
+      "collision_boxes": 1,
+      "triangles": 972,
+      "hinge": {
+        "axis": "Z",
+        "max_open_deg": 100.0,
+        "blender_open_sign": 1.0,
+        "unreal_open_yaw_sign": -1.0,
+        "gltf_open_sign": 1.0
+      }
+    },
+    {
+      "name": "SM_LBunkBed_Mattress_Upper",
+      "fbx": "SM_LBunkBed_Mattress_Upper.fbx",
+      "material_slots": [
+        {
+          "slot": "M_MattressSide",
+          "ue_instance": "MI_BB_MattressSide"
+        },
+        {
+          "slot": "M_MattressTop",
+          "ue_instance": "MI_BB_MattressTop"
+        }
+      ],
+      "pivot_blender_m": [
+        -0.0,
+        0.0,
+        0.0
+      ],
+      "pivot_unreal_cm": [
+        -0.0,
+        -0.0,
+        0.0
+      ],
+      "collision_boxes": 1,
+      "triangles": 300
+    },
+    {
+      "name": "SM_LBunkBed_Mattress_Lower",
+      "fbx": "SM_LBunkBed_Mattress_Lower.fbx",
+      "material_slots": [
+        {
+          "slot": "M_MattressSide",
+          "ue_instance": "MI_BB_MattressSide"
+        },
+        {
+          "slot": "M_MattressTop",
+          "ue_instance": "MI_BB_MattressTop"
+        }
+      ],
+      "pivot_blender_m": [
+        -0.0,
+        0.0,
+        0.0
+      ],
+      "pivot_unreal_cm": [
+        -0.0,
+        -0.0,
+        0.0
+      ],
+      "collision_boxes": 1,
+      "triangles": 300
+    }
+  ]
+}
