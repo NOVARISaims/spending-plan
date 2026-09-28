@@ -360,6 +360,7 @@ class Lining:
         x, z = P[:, 0], P[:, 2]
         keep = (x <= 1.13) & (x >= -2.08) & (N[:, 2] >= -0.55)
         keep &= np.where(x > -1.18, z >= 0.40, z >= BOOT_Z - 0.02)
+        keep &= ~((x < -1.97) & (z < 0.80))           # no trim over the bumper's ledge (it would fold out)
         keep &= ~((x > 1.00) & (z < 1.00))           # engine-bay side of the dash
         keep &= ~((x > 1.00) & (N[:, 2] > 0.5))      # cowl: under the dash top
         keep &= np.abs(P[:, 1]) > 2e-4                # slivers where a glass outline meets the centre line
@@ -467,8 +468,8 @@ def build_floor(kit):
 
 def build_boot(kit):
     # floor board between the wheel houses, wider behind them
-    outline = [(-1.10, -0.56), (-1.76, -0.56), (-1.80, -0.70), (-2.00, -0.70), (-2.03, -0.55),
-               (-2.03, 0.55), (-2.00, 0.70), (-1.80, 0.70), (-1.76, 0.56), (-1.10, 0.56)]
+    outline = [(-1.10, -0.56), (-1.76, -0.56), (-1.80, -0.70), (-1.97, -0.66), (-2.03, -0.52),
+               (-2.03, 0.52), (-1.97, 0.66), (-1.80, 0.70), (-1.76, 0.56), (-1.10, 0.56)]
     frame = (np.array([0.0, 0.0, BOOT_Z - 0.015]), np.array([1.0, 0, 0]), np.array([0, 1.0, 0]),
              np.array([0, 0, 1.0]))
     kit.prism(np.array(outline), 0.0, 0.015, frame, "carpet")
@@ -483,12 +484,14 @@ def build_boot(kit):
             rows.append([(x, side * y, z) for y, z in sec])
         verts, faces, _ = loft_rows(rows, closed=True, caps=True)
         add_closed(kit, verts, faces, "carpet")
-    # parcel shelf (load cover) under the tailgate glass
-    outline = [(-1.33, -0.66), (-1.92, -0.60), (-1.99, -0.50), (-1.99, 0.50), (-1.92, 0.60), (-1.33, 0.66)]
+    # parcel shelf (load cover) under the tailgate glass; its back edge follows
+    # the tailgate trim, which curves forward into the narrow rear corners
+    outline = [(-1.33, -0.66), (-1.86, -0.60), (-1.93, -0.50), (-1.965, -0.40), (-1.985, -0.28),
+               (-1.985, 0.28), (-1.965, 0.40), (-1.93, 0.50), (-1.86, 0.60), (-1.33, 0.66)]
     frame = (np.array([0.0, 0.0, 1.095]), np.array([1.0, 0, 0]), np.array([0, 1.0, 0]), np.array([0, 0, 1.0]))
     kit.prism(np.array(outline), 0.0, 0.012, frame, "carpet")
     # the raised rear edge of the shelf
-    kit.box((-1.93, 0.0, 1.13), (0.05, 1.10, 0.06), "carpet")
+    kit.box((-1.93, 0.0, 1.13), (0.05, 0.80, 0.06), "carpet")
 
 
 # ---------------------------------------------------------------------------

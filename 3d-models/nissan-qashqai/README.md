@@ -3,8 +3,10 @@
 A procedural 3D model of a 2017 Nissan Qashqai (second generation, J11,
 pre-facelift) in Acenta trim. It's painted Gun Metallic grey and registered
 **DE17 YAU**. The interior, the alloy wheels and the tailgate badge follow the
-owner's photos of the car. A Blender Python script builds it and an editor
-Python script imports it into Unreal Engine 5.
+owner's photos of the car. The greenhouse and the whole rear were then refined
+against a 3D model of the 2018 car, used for measurements only (see
+[Accuracy](#accuracy)). A Blender Python script builds it and an editor Python
+script imports it into Unreal Engine 5.
 
 ![Front three-quarter render](renders/front_three_quarter.jpg)
 
@@ -20,10 +22,12 @@ Python script imports it into Unreal Engine 5.
 ## What's modelled
 
 - **Body shell**: one continuous surface measured from the photos, with the
-  shoulder crease, and the lower-door swage that flows into the bulge over the
-  rear wheel. The bonnet has its two converging creases, and the bumper steps
-  back below a crisp crease under each headlamp. The door, bonnet, tailgate,
-  bumper and fuel-flap shut lines are cut in as real grooves.
+  greenhouse and everything from the rear wheels back fitted to the 2018
+  reference model's cross-sections. It has the shoulder crease, and the
+  lower-door swage that flows into the bulge over the rear wheel. The bonnet
+  has its two converging creases, and the bumper steps back below a crisp
+  crease under each headlamp. The door, bonnet, tailgate, bumper and fuel-flap
+  shut lines are cut in as real grooves.
 - **Glass**: windscreen with black frit and wipers, three side windows per side,
   and tailgate glass with frit and the rear wiper. The window openings have a
   chrome surround and gloss-black B and C pillars, and the mirrors sit on black
@@ -34,9 +38,10 @@ Python script imports it into Unreal Engine 5.
   the lower edge. Lower grille with slats, oval fog lamps with chrome rings,
   and a black lower lip.
 - **Rear**: boomerang tail lamps (red lens with the clear reversing band),
-  roof spoiler with high-level brake light, rod aerial, recessed plate panel,
-  Nissan roundel, chrome QASHQAI script on the tailgate, black lower bumper
-  with reflectors.
+  roof spoiler with high-level brake light, rod aerial. The lamp band across
+  the tailgate stands proud of the panels above and below it and carries the
+  Nissan roundel. Below it are the recessed plate panel, the chrome QASHQAI
+  script and the bumper's ledge. Black lower bumper with reflectors.
 - **Trim**: black wheel-arch mouldings and sill cladding, wheel-well liners,
   body-coloured mirror caps with indicator strips, body-coloured door handles,
   cowl panel.
@@ -67,7 +72,7 @@ Python script imports it into Unreal Engine 5.
     lights, grab handles, carpeted floor and boot with wheel-house covers and
     the parcel shelf.
 
-Size: **4341 mm** bumper to bumper (4356 mm with the front plate), **1806 mm**
+Size: **4331 mm** bumper to bumper (4346 mm with the front plate), **1806 mm**
 wide (2064 mm over the mirrors), **1590 mm** high, **2646 mm** wheelbase. For
 why the length differs slightly from the published 4377 mm, see
 [Accuracy](#accuracy).
@@ -182,7 +187,7 @@ Useful flags:
 - `--blend FILE`: where to save the scene
 - `--render --views front_three_quarter,photo_left`: render a subset of views
 - `--samples N`: Cycles samples
-- `--ds 0.03`: coarser body mesh (default 0.02 m grid; about 200k body triangles)
+- `--ds 0.03`: coarser body mesh (default 0.02 m grid; about 214k body triangles)
 - `--no-export`, `--no-interior`
 
 Without `--render` a build takes a little over a minute. Each Cycles view
@@ -203,16 +208,25 @@ and cut in exactly, so every opening, lens and moulding lines up.
 
 - The shell is a loft. Each cross-section runs from the floor over the sill,
   the widest line, the shoulder crease and the beltline to the roof. Every
-  control point follows a profile measured along the car. The plan shape of
-  the nose is fuller at bumper height and more swept at headlamp height.
+  control point follows a profile keyed along the car: measured from the
+  photos, then fitted to the reference model's sections from the front doors
+  back (least squares over 74 stations, about 1 cm median error). The plan
+  shape of the nose is fuller at bumper height and more swept at headlamp
+  height.
 - Each feature outline is mapped onto the surface by ray casting. The grid
   cells it crosses are re-triangulated with a constrained Delaunay
   triangulation in the surface's parameter space, so outlines become exact
   mesh edges. Every face knows which regions it lies in, and that decides
   whether it becomes paint, chrome, black trim, glass or a lamp opening.
-- Shut lines are V-grooves (5.5 mm wide, 4.5 mm deep). The swage, haunch and
-  creases are analytic displacements, so the normals stay exact and the
-  creases stay crisp.
+- Shut lines are V-grooves (5.5 mm wide, 4.5 mm deep). The swage, haunch,
+  creases and the proud lamp band on the tailgate are analytic displacements,
+  so the normals stay exact and the creases stay crisp. Each face corner takes
+  its normal from derivatives along its own two edges, so the faces on either
+  side of a groove wall or step keep their own shading. On an outline the
+  displacement is taken as linear along each edge, as the mesh has it, which
+  keeps narrow grooves and steps free of saw-tooth shading. The shoulder
+  crease fades out behind the tail lamps, where the section turns across the
+  tail.
 - Glass, lenses, lamp housings, recessed grilles and arch mouldings are built
   from their regions of the shell, so each one fits its opening exactly.
 - The interior trims (headliner, pillars, door cards, boot sides) are a copy of
@@ -220,7 +234,7 @@ and cut in exactly, so every opening, lens and moulding lines up.
   roof, and they return to every window edge, so the cabin is closed and
   follows the outside exactly. The colour changes (beltline, door-card
   split, boot trim) are cut into that mesh as edges, so they run straight.
-- Triangle counts: body 201k, glass 21k, lenses 5k, interior 84k, wheel 12k
+- Triangle counts: body 214k, glass 22k, lenses 6k, interior 87k, wheel 12k
   (×4).
 
 ## Accuracy
@@ -238,11 +252,40 @@ and cut in exactly, so every opening, lens and moulding lines up.
   cladding, fuel flap and the side of the headlamps and tail lamps. The grille,
   chrome V and headlamp fronts were traced in the front three-quarter photo.
   The rear features came from a photo-textured rear elevation.
-- **Length**: the photos put the front bumper 3–7 cm behind where the published
-  4377 mm length puts it. The rear matches. The model follows the photos:
-  4341 mm bumper to bumper, 4356 mm with the plate. To match the published
-  figure instead, stretch the front profile keys in `qashqai_body.py` (every
-  key forward of X = 1.9 m, plus `X_F`).
+- **2018 reference model**: the owner supplied a Sketchfab model of a 2018
+  (facelift) Qashqai. The facelift changed the front, the lamps and the
+  bumpers, but the body shell behind the windscreen is essentially carried
+  over. The model was used only as a measuring reference, and none of its
+  geometry or textures is in this repository (the download came without a
+  licence file).
+  - It was scaled and placed by its wheel centres. Its tyre size and body
+    width then match the published figures within a few millimetres.
+  - It confirmed what the photos showed from the side: the old tail bulged
+    5–12 cm past the photos' outline, while the reference follows them.
+  - The rear from the arches back, and the greenhouse widths from the front
+    doors back, were fitted to its sections. The shoulder crease and the
+    window line stay where the photos put them. The greenhouse is 2–5 cm
+    narrower each side, and the rear corners are 6–12 cm slimmer at lamp
+    height. Seen from behind, the tail now follows the reference within
+    about 1–2 cm (it was 3–9 cm out).
+  - The lamp band across the tailgate stands 3.5 cm proud of the panels
+    above and below it, as on the reference. The height of its lower edge
+    (the lip over the plate) comes from the photos.
+  - The tailgate shut line is now 0.63 m out from the centre, through the
+    outer third of the tail lamps, as on the reference and in the owner's
+    straight-on rear photo (it was about 0.52 m). The QASHQAI script moved
+    out with it, next to the shut line as in the owner's photos.
+  - The front was not refitted. The facelift has a different nose, and the
+    photos put the 2017 bonnet 2–10 cm lower than the reference's. (It moved
+    by under 2 mm near the centre line, where every cross-section now meets
+    its mirror image square instead of at a slight angle.)
+- **Length**: the rear bumper tip is at the reference model's (1 cm shorter
+  than the old model; the two side photos disagree by 2–3 cm there). The
+  photos put the front bumper 3–7 cm behind where the published 4377 mm length
+  puts it, and the model follows the photos: 4331 mm bumper to bumper, 4346 mm
+  with the plate. To match the published figure instead, stretch the front
+  profile keys in `qashqai_body.py` (every key forward of X = 1.9 m, plus
+  `X_F`).
 - **Paint**: the grey was calibrated in a render set up to match the 2019
   reference photos (same studio levels) against the Gun Metallic car in those
   photos. The owner's car agrees: the front door in its side photo averages

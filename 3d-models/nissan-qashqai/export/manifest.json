@@ -2,7 +2,7 @@
   "name": "Nissan Qashqai 2017 (J11 pre-facelift), Gun Metallic, reg DE17 YAU",
   "units": "centimetres",
   "overall_cm": {
-    "length_x": 434.1,
+    "length_x": 433.1,
     "width_y": 180.6,
     "height_z": 159.0,
     "wheelbase": 264.6
@@ -1304,7 +1304,7 @@
         }
       ],
       "collision_hulls": 3,
-      "triangles": 201388
+      "triangles": 213706
     },
     {
       "name": "SM_Qashqai_Glass",
@@ -1320,7 +1320,7 @@
         }
       ],
       "collision_hulls": 0,
-      "triangles": 20746
+      "triangles": 22088
     },
     {
       "name": "SM_Qashqai_Lenses",
@@ -1340,7 +1340,7 @@
         }
       ],
       "collision_hulls": 0,
-      "triangles": 5216
+      "triangles": 5560
     },
     {
       "name": "SM_Qashqai_Interior",
@@ -1351,12 +1351,12 @@
           "ue_instance": "MI_QQ_InteriorPlastic"
         },
         {
-          "slot": "M_Headliner",
-          "ue_instance": "MI_QQ_Headliner"
-        },
-        {
           "slot": "M_Carpet",
           "ue_instance": "MI_QQ_Carpet"
+        },
+        {
+          "slot": "M_Headliner",
+          "ue_instance": "MI_QQ_Headliner"
         },
         {
           "slot": "M_InteriorSoft",
@@ -1444,7 +1444,7 @@
         }
       ],
       "collision_hulls": 0,
-      "triangles": 84282
+      "triangles": 87360
     },
     {
       "name": "SM_Qashqai_Wheel",

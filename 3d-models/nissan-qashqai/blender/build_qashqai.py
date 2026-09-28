@@ -6,10 +6,10 @@ surround), painted Gun Metallic grey and registered DE17 YAU.
 
 The body shell is a loft (qashqai_body) with every feature outline cut in
 exactly (body_build / body_mesh); wheels, mirrors, handles, badges, lamp
-internals, plates and a simple interior are procedural parts
-(qashqai_parts).  Width, height, wheelbase and tyres follow the published
-spec (1806 mm, 1590 mm, 2646 mm, 215/60 R17); the length follows the photos
-(4341 mm, see qashqai_body).
+internals and plates are procedural parts (qashqai_parts), and the interior
+is built in qashqai_interior.  Width, height, wheelbase and tyres follow the
+published spec (1806 mm, 1590 mm, 2646 mm, 215/60 R17); the length follows
+the photos and the reference model's tail (4331 mm, see qashqai_body).
 
 Usage:
     blender -b -P build_qashqai.py -- [--out DIR] [--render] [--samples N]
@@ -335,9 +335,16 @@ def build_body(surf, log):
         zc = np.array([h.P[h.faces[k], 2].mean() for k in ids])
         nz = np.array([h.N[h.faces[k], 2].mean() for k in ids])
         under = {k for k, z, n in zip(ids, zc, nz) if z < 0.33 and n < -0.45}
+        # the black lower bumper where the sections pinch to the tail tip (the
+        # contoured region cannot reach the degenerate first station)
+        xc = np.array([h.P[h.faces[k], 0].mean() for k in ids])
+        yc = np.array([np.abs(h.P[h.faces[k], 1]).mean() for k in ids])
+        tip = {k for k, x, y, z in zip(ids, xc, yc, zc) if x < qb.X_R + 0.01 and bb.rear_lower_z(y) > z}
 
-        def shell_mat(k, h=h, under=under):
+        def shell_mat(k, h=h, under=under, tip=tip):
             m = h.cls[k][1]
+            if m == "paint" and k in tip:
+                return "plastic"
             return "underbody" if (m == "paint" and k in under) else m
         body.add_faces_from(h, ids, shell_mat)
         # glass sits 4 mm inside the opening, with a dark reveal

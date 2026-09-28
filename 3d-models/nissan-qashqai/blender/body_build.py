@@ -20,6 +20,7 @@ import qashqai_body as qb
 import qashqai_features as F
 
 VIEW_STEP = 0.008           # outline sampling (m) before mapping
+EDGE_STEP = 0.01            # corner normals: step along each edge (fraction of the edge)
 
 
 # ---------------------------------------------------------------------------
@@ -104,6 +105,34 @@ class Recess:
         inside = bm.points_in_polygon(p2, self.poly)
         out = np.where(inside, -self.depth * np.clip(dist / self.w, 0.0, 1.0), 0.0)
         return np.where(-(N @ d) > 0.5, out, 0.0)
+
+
+class Band:
+    """The lamp band across the tailgate stands proud of the panels above and
+    below it (rear view): full height between the lip and the band's top edge,
+    crisp at both, fading out into the lamps between y_in and y_out.  Only
+    rear-facing surface moves (easing in), so the ends never tear."""
+
+    W_LIP, W_TOP = 0.015, 0.006             # widths of the lower and upper steps
+
+    def __init__(self, z_lip, z_top, y_in, y_out, depth):
+        self.z_lip, self.z_top = z_lip, z_top
+        self.y_in, self.y_out, self.depth = y_in, y_out, depth
+
+    def lines(self):
+        """Rear-view edges for the mesh: both ends of the two crisp steps."""
+        y1 = self.y_out - 0.02
+        return {"band_%d" % k: np.array([(0.0, z), (y1, z)])
+                for k, z in enumerate((self.z_lip, self.z_lip + self.W_LIP, self.z_top - self.W_TOP, self.z_top))}
+
+    def __call__(self, P, N, sides):
+        y, z = np.abs(P[:, 1]), P[:, 2]
+        lo = np.clip((z - self.z_lip) / self.W_LIP, 0.0, 1.0)
+        hi = np.clip((self.z_top - z) / self.W_TOP, 0.0, 1.0)
+        t = np.clip((self.y_out - y) / (self.y_out - self.y_in), 0.0, 1.0)
+        face = np.clip((-N[:, 0] - 0.5) / 0.3, 0.0, 1.0)
+        out = self.depth * lo * hi * t * t * (3.0 - 2.0 * t) * face
+        return np.where(P[:, 0] < -1.9, out, 0.0)
 
 
 SWAGE_RAMP = 0.018
@@ -309,8 +338,7 @@ def build_spec(surf, side):
 
     # --- lower black bumper sections ------------------------------------------
     def rear_lower(P):
-        z_top = np.interp(np.abs(P[:, 1]), [0.0, 0.6, 0.8, 0.95], [0.515, 0.517, 0.535, 0.55])
-        return np.maximum(P[:, 2] - z_top, P[:, 0] + 1.735)
+        return np.maximum(P[:, 2] - rear_lower_z(np.abs(P[:, 1])), P[:, 0] + 1.735)
     S.implicit("rear_lower", rear_lower)
 
     def front_lip(P):
@@ -333,11 +361,15 @@ def build_spec(surf, side):
         S.closed_groove("fuel", "side", F.rounded_rect(f["x0"], f["x1"], f["z0"], f["z1"], f["r"]),
                         side=-1.0)
 
-    # --- rear plate recess ----------------------------------------------------------
+    # --- lamp band standing proud across the tailgate; plate recess below it -------
+    band = Band(**F.LAMP_BAND)
+    for name, line in band.lines().items():
+        S.lines[name] = S.view_poly("rear", line, closed=False)
+    S.fields.append(band)
     recess = np.array(F.PLATE_RECESS)
     S.region("recess", "rear", recess)
     S.region("recess_in", "rear", inset(recess, 0.007))
-    S.fields.append(Recess("rear", recess, 0.012, 0.007))
+    S.fields.append(Recess("rear", recess, F.PLATE_RECESS_DEPTH, 0.007))
 
     # --- sculpting --------------------------------------------------------------------
     S.lines["swage"] = S.view_poly("side", np.array(F.SWAGE), closed=False)
@@ -359,6 +391,11 @@ def build_spec(surf, side):
     for (x, z) in F.HANDLES:
         S.fields.append(Dish("side", (x, z - 0.012), (0.080, 0.030), 0.010))
     return S
+
+
+def rear_lower_z(y):
+    """Top edge of the black lower rear bumper at half-width y."""
+    return np.interp(y, [0.0, 0.6, 0.8, 0.95], [0.515, 0.517, 0.535, 0.55])
 
 
 def fog_frame(S):
@@ -447,7 +484,13 @@ class Half:
         self.line_verts = ov["line_verts"]
         self.shell = bm.Shell(surf, side, self.spec.fields)
         self.P = self.shell.eval(self.ab[:, 0], self.ab[:, 1])
+        # keep the centre line closed: a displacement along a normal that leans
+        # off the plane of symmetry (the lamp band, the plate recess) would open
+        # a slit between the two halves
+        seam = np.abs(self.shell.base(self.ab[:, 0], self.ab[:, 1])[:, 1]) < 1e-4
+        self.P[seam, 1] = 0.0
         self.N = self.shell.normal(self.ab[:, 0], self.ab[:, 1])     # smooth vertex normals
+        self._disp, self._crisp = None, None        # caches for loop_normals
         self.cls = [classify(l) for l in self.labels]
         # (a, b) faces wind inwards on the left side; the mirror image on the
         # right side winds outwards already
@@ -455,11 +498,62 @@ class Half:
             self.faces = [f[::-1] for f in self.faces]
 
     def loop_normals(self, faces):
-        """Analytic normals for every corner of the given faces."""
+        """Analytic normals for every corner of the given faces.  Each corner
+        differentiates along its own two edges, so faces on either side of a
+        crisp line (a step, a groove wall) keep their own side's normal even
+        where the face is only a few millimetres wide.  At a vertex on a line
+        or a region border the displacement is taken as linear along each edge,
+        as the mesh has it: the vertex can sit a fraction of a millimetre off
+        the field's kink, and the exact derivative there would belong to the
+        groove wall or step next to it rather than to the face.  Corners too
+        sharp for either take derivatives just inside the face instead."""
+        ab = self.ab
+        if self._disp is None:
+            self._disp = self.shell.offset(ab[:, 0], ab[:, 1])
+        off = self._disp
         vi = np.array([v for f in faces for v in f])
-        fc = np.array([self.ab[f].mean(0) for f in faces])
+        nxt = np.array([f[(i + 1) % len(f)] for f in faces for i in range(len(f))])
+        prv = np.array([f[i - 1] for f in faces for i in range(len(f))])
+        fc = np.array([ab[f].mean(0) for f in faces])
         fi = np.repeat(np.arange(len(faces)), [len(f) for f in faces])
-        return self.shell.normal(self.ab[vi, 0], self.ab[vi, 1], toward=(fc[fi, 0], fc[fi, 1]))
+        a, b = ab[vi, 0], ab[vi, 1]
+        inside = self.shell.normal(a, b, toward=(fc[fi, 0], fc[fi, 1]))
+        p = self.shell.eval(a, b)
+        lin = self.crisp_verts()[vi]
+
+        def tangent(u):
+            a1, b1 = a + EDGE_STEP * (ab[u, 0] - a), b + EDGE_STEP * (ab[u, 1] - b)
+            t = self.shell.eval(a1, b1) - p
+            if lin.any():
+                d = off[vi[lin]] + EDGE_STEP * (off[u[lin]] - off[vi[lin]])
+                q = self.shell.base(a1[lin], b1[lin]) + self.shell.base_normal(a1[lin], b1[lin]) * d[:, None]
+                t[lin] = q - p[lin]
+            return t
+
+        t1, t2 = tangent(nxt), tangent(prv)
+        n = np.cross(t1, t2)
+        ln = np.linalg.norm(n, axis=1)
+        ok = ln > 0.05 * np.linalg.norm(t1, axis=1) * np.linalg.norm(t2, axis=1)    # corner over ~3 degrees
+        n = n / np.maximum(ln, 1e-30)[:, None]
+        n *= np.where(np.einsum("ij,ij->i", n, inside) < 0.0, -1.0, 1.0)[:, None]
+        return np.where(ok[:, None], n, inside)
+
+    def crisp_verts(self):
+        """Vertices where the shell may crease: on a cut line, on a border
+        between regions, or on an outline (cached)."""
+        if self._crisp is None:
+            crisp = np.zeros(len(self.ab), dtype=bool)
+            for vs in self.line_verts.values():
+                crisp[list(vs)] = True
+            faces_at = {}
+            for k, f in enumerate(self.faces):
+                for i in range(len(f)):
+                    faces_at.setdefault((min(f[i], f[i - 1]), max(f[i], f[i - 1])), []).append(k)
+            for e, ks in faces_at.items():
+                if len(ks) != 2 or self.labels[ks[0]] != self.labels[ks[1]]:
+                    crisp[list(e)] = True
+            self._crisp = crisp
+        return self._crisp
 
     def select(self, pred):
         return [k for k, c in enumerate(self.cls) if pred(c)]

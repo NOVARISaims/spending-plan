@@ -123,11 +123,21 @@ class Shell:
         if not self.fields:
             return P
         N = self.base_normal(a, b)
+        return P + N * self._offset(P, N)[:, None]
+
+    def offset(self, a, b):
+        """Total displacement along the base normal at (a, b)."""
+        P = self.base(a, b)
+        if not self.fields:
+            return np.zeros(len(P))
+        return self._offset(P, self.base_normal(a, b))
+
+    def _offset(self, P, N):
         sides = np.full(len(P), self.side)
         d = np.zeros(len(P))
         for f in self.fields:
             d += f(P, N, sides)
-        return P + N * d[:, None]
+        return d
 
     def normal(self, a, b, toward=None, h=0.01):
         a = np.atleast_1d(np.asarray(a, float)).ravel()

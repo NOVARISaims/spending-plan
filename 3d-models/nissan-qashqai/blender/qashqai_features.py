@@ -147,12 +147,18 @@ SPOILER_BAND = [(0.000, 1.482), (0.450, 1.478), (0.560, 1.462), (0.575, 1.440), 
 # Rear (rear view, Y >= 0)
 # ---------------------------------------------------------------------------
 LOGO_REAR = dict(y=0.0, z=1.060, d=0.115)
-# chrome "QASHQAI" script on the lower corner of the tailgate, car's left
-# (owner's rear photo)
-BADGE_REAR = dict(text="QASHQAI", y=0.430, z=0.883, cap=0.022, depth=0.003, spacing=1.12)
+# chrome "QASHQAI" script on the lower corner of the tailgate, car's left,
+# close to the shut line (owner's rear photos); y is the centre of the text
+BADGE_REAR = dict(text="QASHQAI", y=0.520, z=0.883, cap=0.022, depth=0.003, spacing=1.12)
 PLATE_REAR = dict(z=0.912, w=0.520, h=0.111)
-PLATE_RECESS = [(0.000, 0.988), (0.285, 0.988), (0.300, 0.972), (0.300, 0.852), (0.285, 0.838),
+# The lamp band across the tailgate (with the roundel) stands proud of the
+# panels above and below it.  Its lower edge is the lip over the plate recess
+# traced in the photos; its top edge and depth come from the 2018 reference
+# model (see README).
+LAMP_BAND = dict(z_lip=0.988, z_top=1.128, y_in=0.30, y_out=0.46, depth=0.035)
+PLATE_RECESS = [(0.000, 0.972), (0.285, 0.972), (0.300, 0.957), (0.300, 0.852), (0.285, 0.838),
                 (0.000, 0.838)]
+PLATE_RECESS_DEPTH = 0.018
 TAILLAMP = (pts("rear", [(0.300, 1.083), (0.320, 1.103), (0.450, 1.114), (0.600, 1.124),
                          (0.720, 1.129)])
             + pts("side", [(-1.870, 1.104), (-1.720, 1.120), (-1.620, 1.128), (-1.568, 1.132),
@@ -163,8 +169,13 @@ TAILLAMP = (pts("rear", [(0.300, 1.083), (0.320, 1.103), (0.450, 1.114), (0.600,
 # clear reversing / indicator band along the top of the tail lamp (rear face)
 TAILLAMP_WHITE = [(0.285, 1.068), (0.300, 1.105), (0.450, 1.117), (0.600, 1.127), (0.740, 1.133),
                   (0.805, 1.118), (0.790, 1.090), (0.620, 1.087), (0.450, 1.077), (0.320, 1.063)]
-TAILGATE_GAP = [(0.600, 1.446), (0.604, 1.300), (0.578, 1.200), (0.548, 1.120), (0.528, 1.000),
-                (0.520, 0.860), (0.510, 0.775), (0.470, 0.738), (0.300, 0.733), (0.000, 0.732)]
+# tailgate shut line: the bottom edge from the photos (kept just above the
+# bumper's ledge), the sides (through the outer third of the tail lamps and
+# up the D pillars) from the reference model and the owner's rear photo
+TAILGATE_GAP = [(0.596, 1.446), (0.606, 1.380), (0.610, 1.300), (0.609, 1.240), (0.614, 1.180),
+                (0.624, 1.120), (0.630, 1.050), (0.633, 0.980), (0.633, 0.900), (0.631, 0.840),
+                (0.622, 0.798), (0.600, 0.771), (0.560, 0.754), (0.500, 0.747), (0.300, 0.745),
+                (0.000, 0.745)]
 REAR_LOWER_TOP = [(0.000, 0.472), (0.500, 0.474), (0.700, 0.476)]   # black lower bumper
 REFLECTOR = dict(y=0.585, z=0.445, w=0.095, h=0.028)
 BRAKE_LIGHT = dict(y=0.0, z=1.468, w=0.300, h=0.018)

@@ -4,11 +4,16 @@ The shell is one closed loft: at every station X along the car a closed
 cross-section is built from a handful of control points (sill, bulge,
 shoulder crease, beltline, roof rail, roof centre) and sampled with a
 centripetal Catmull-Rom spline.  Each control point follows a profile
-keyframed along X; the profiles were measured off the side photos through
+keyframed along X.  The profiles were measured off the side photos through
 their solved cameras (perspective-corrected, see README) at the published
-1806 mm width, 1590 mm height and 2646 mm wheelbase.  The nose follows the
-photos, which put the bumper 3.6 cm shorter than the published 4377 mm
-length implies (4341 mm bumper to bumper, 4356 mm with the front plate).
+1806 mm width, 1590 mm height and 2646 mm wheelbase.  The greenhouse widths
+from the front doors back, and every profile from the rear wheel arch back,
+were then fitted to the cross-sections of a 2018 (facelift) model of the car,
+whose body shell behind the windscreen is carried over; the shoulder crease
+and the window line stay where the photos put them.  The nose follows the
+photos and the tail the reference model, which makes the car 4.6 cm shorter
+than the published 4377 mm (4331 mm bumper to bumper, 4346 mm with the front
+plate).
 
 Surface(ds) evaluates the shell continuously as S(a, b): a runs along the
 stations (spaced so the surface moves about ds between them), b along the
@@ -19,7 +24,7 @@ import numpy as np
 
 WHEELBASE = 2.646
 X_FA, X_RA = WHEELBASE / 2.0, -WHEELBASE / 2.0      # axle positions
-X_F, X_R = 2.177, -2.164                             # bumper tips (see README: 4.341 m)
+X_F, X_R = 2.177, -2.154                             # bumper tips (see README: 4.331 m)
 HALF_W = 0.903                                       # 1806 mm body width
 
 
@@ -58,78 +63,83 @@ def pchip(keys, x):
 
 # ---------------------------------------------------------------------------
 # Profiles (X -> value).  Heights from the side photos, widths from the
-# front/rear photos and the 1806 mm body width.
+# front/rear photos and the 1806 mm body width.  Keys behind X = -1.3 (and
+# the greenhouse widths back from X = 0.4) are the fit to the reference
+# model's sections; the tail's plan shape is in its width keys.
 # ---------------------------------------------------------------------------
 P = {
     # --- side view (Z) -----------------------------------------------------
     # top silhouette on the centre line: bumper face, bonnet, windscreen,
     # roof, spoiler, tailgate glass, tailgate panel
-    "z_top": [(2.177, 0.70), (2.1566, 0.78), (2.1035, 0.84), (2.0062, 0.90), (1.90, 0.935),
-              (1.80, 0.975), (1.68, 1.02), (1.50, 1.065), (1.30, 1.085), (1.12, 1.100),
-              (1.00, 1.140), (0.80, 1.235), (0.55, 1.365), (0.30, 1.475), (0.10, 1.545),
-              (-0.15, 1.580), (-0.40, 1.590), (-0.70, 1.580), (-1.00, 1.562),
-              (-1.30, 1.537), (-1.55, 1.505), (-1.67, 1.490), (-1.72, 1.40),
-              (-1.80, 1.30), (-1.90, 1.215), (-1.97, 1.13), (-2.03, 1.02),
-              (-2.08, 0.90), (-2.11, 0.80), (-2.14, 0.74), (-2.164, 0.68)],
+    "z_top": [(2.177, 0.700), (2.1566, 0.780), (2.1035, 0.840), (2.0062, 0.900), (1.90, 0.935),
+              (1.80, 0.975), (1.68, 1.020), (1.50, 1.065), (1.30, 1.085), (1.12, 1.100), (1.00, 1.140),
+              (0.80, 1.235), (0.55, 1.365), (0.30, 1.475), (0.10, 1.545), (-0.15, 1.580),
+              (-0.40, 1.590), (-0.70, 1.580), (-1.00, 1.562), (-1.30, 1.537), (-1.38, 1.532),
+              (-1.44, 1.522), (-1.56, 1.509), (-1.62, 1.502), (-1.68, 1.502), (-1.73, 1.363),
+              (-1.77, 1.331), (-1.86, 1.264), (-2.00, 1.141), (-2.02, 1.121), (-2.04, 0.955),
+              (-2.055, 0.831), (-2.07, 0.711), (-2.115, 0.701), (-2.13, 0.630), (-2.154, 0.515)],
     # beltline / greenhouse base (side edge of the top); bonnet side edge in front
-    "z_shelf": [(2.177, 0.68), (2.1035, 0.80), (1.9885, 0.87), (1.85, 0.92), (1.60, 0.99),
-                (1.30, 1.045), (1.10, 1.075), (0.85, 1.090), (0.50, 1.085),
-                (0.00, 1.105), (-0.50, 1.128), (-0.95, 1.158), (-1.40, 1.185),
-                (-1.70, 1.180), (-1.90, 1.165), (-2.00, 1.12), (-2.08, 0.97),
-                (-2.13, 0.80), (-2.164, 0.68)],
+    "z_shelf": [(2.177, 0.680), (2.1035, 0.800), (1.9885, 0.870), (1.85, 0.920), (1.60, 0.990),
+                (1.30, 1.045), (1.10, 1.075), (0.85, 1.090), (0.50, 1.085), (0.00, 1.105),
+                (-0.50, 1.128), (-0.60, 1.134), (-0.85, 1.210), (-1.10, 1.269), (-1.38, 1.276),
+                (-1.44, 1.272), (-1.56, 1.244), (-1.68, 1.184), (-1.83, 1.117), (-1.975, 1.061),
+                (-2.00, 1.044), (-2.02, 0.991), (-2.04, 0.922), (-2.154, 0.507)],
     # shoulder crease under the beltline
-    "z_sh": [(2.177, 0.62), (2.077, 0.74), (1.9442, 0.84), (1.80, 0.88), (1.40, 0.93),
-             (0.80, 0.975), (0.00, 1.005), (-0.80, 1.035), (-1.40, 1.070),
-             (-1.80, 1.080), (-2.00, 1.03), (-2.10, 0.90), (-2.164, 0.62)],
+    "z_sh": [(2.177, 0.620), (2.077, 0.740), (1.9442, 0.840), (1.80, 0.880), (1.40, 0.930),
+             (0.80, 0.975), (0.00, 1.005), (-0.80, 1.035), (-1.40, 1.070), (-1.70, 1.079),
+             (-1.77, 1.067), (-1.83, 1.037), (-1.86, 1.010), (-1.95, 0.924), (-2.115, 0.771),
+             (-2.154, 0.730)],
     # widest line of the lower body
-    "z_bulge": [(2.177, 0.52), (1.90, 0.60), (1.20, 0.66), (0.00, 0.68), (-1.20, 0.68),
-                (-1.90, 0.62), (-2.164, 0.52)],
+    "z_bulge": [(2.177, 0.520), (1.90, 0.600), (1.20, 0.660), (0.00, 0.680), (-1.20, 0.680),
+                (-1.89, 0.620), (-2.154, 0.520)],
     # bottom edge of the sides (sill / bumper lower edges)
-    "z_sill": [(2.177, 0.33), (2.077, 0.315), (1.90, 0.305), (1.60, 0.30), (0.90, 0.30),
-               (0.00, 0.30), (-0.90, 0.30), (-1.60, 0.32), (-1.95, 0.37), (-2.10, 0.40),
-               (-2.164, 0.44)],
-    "z_floor": [(2.177, 0.33), (2.0947, 0.29), (1.9442, 0.25), (1.80, 0.22), (0.00, 0.20), (-1.80, 0.22),
-                (-2.05, 0.31), (-2.164, 0.43)],
-    # --- plan view (half widths before end rounding) ----------------------
-    "w_bulge": [(2.177, 0.880), (1.80, 0.895), (1.323, 0.903), (0.60, 0.890),
-                (-0.60, 0.890), (-1.323, 0.903), (-1.90, 0.892), (-2.164, 0.880)],
-    "w_sh": [(2.177, 0.850), (1.80, 0.868), (1.323, 0.875), (0.60, 0.868),
-             (-0.60, 0.868), (-1.323, 0.878), (-1.90, 0.862), (-2.164, 0.845)],
-    "w_shelf": [(2.177, 0.800), (1.80, 0.825), (1.20, 0.815), (0.85, 0.805),
-                (0.00, 0.800), (-0.90, 0.795), (-1.50, 0.780), (-1.90, 0.760),
-                (-2.164, 0.740)],
-    "w_rail": [(2.177, 0.60), (1.10, 0.66), (0.60, 0.675), (0.00, 0.678),
-               (-0.90, 0.668), (-1.50, 0.640), (-1.90, 0.600), (-2.164, 0.580)],
-    "w_sill": [(2.177, 0.830), (1.80, 0.840), (0.00, 0.845), (-1.80, 0.840),
-               (-2.164, 0.830)],
+    "z_sill": [(2.177, 0.330), (2.077, 0.315), (1.90, 0.305), (1.60, 0.300), (0.90, 0.300),
+               (0.00, 0.300), (-0.90, 0.300), (-1.60, 0.320), (-1.94, 0.370), (-2.09, 0.400),
+               (-2.154, 0.440)],
+    "z_floor": [(2.177, 0.330), (2.0947, 0.290), (1.9442, 0.250), (1.80, 0.220), (0.00, 0.200),
+                (-1.80, 0.220), (-2.05, 0.310), (-2.154, 0.430)],
+    # --- plan view (half widths before the nose taper) --------------------
+    "w_bulge": [(2.177, 0.880), (1.80, 0.895), (1.323, 0.903), (0.60, 0.890), (-0.60, 0.890),
+                (-1.30, 0.903), (-1.38, 0.904), (-1.68, 0.869), (-1.89, 0.794), (-1.975, 0.763),
+                (-2.02, 0.741), (-2.055, 0.692), (-2.07, 0.662), (-2.115, 0.571), (-2.154, 0.496)],
+    "w_sh": [(2.177, 0.850), (1.80, 0.868), (1.323, 0.875), (0.60, 0.868), (-0.60, 0.868),
+             (-1.30, 0.878), (-1.38, 0.861), (-1.44, 0.855), (-1.62, 0.832), (-1.73, 0.805),
+             (-1.86, 0.772), (-1.92, 0.734), (-1.975, 0.656), (-2.00, 0.594), (-2.154, 0.212)],
+    "w_shelf": [(2.177, 0.800), (1.80, 0.825), (1.20, 0.815), (0.85, 0.805), (0.40, 0.783),
+                (0.15, 0.780), (-0.35, 0.786), (-0.60, 0.770), (-0.85, 0.734), (-1.10, 0.710),
+                (-1.30, 0.702), (-1.38, 0.703), (-1.62, 0.701), (-1.68, 0.714), (-1.77, 0.745),
+                (-1.83, 0.747), (-1.92, 0.723), (-1.95, 0.701), (-2.00, 0.599), (-2.04, 0.503),
+                (-2.154, 0.239)],
+    "w_rail": [(2.177, 0.600), (1.10, 0.660), (0.60, 0.675), (0.40, 0.687), (0.15, 0.664),
+               (-0.10, 0.645), (-0.60, 0.626), (-1.30, 0.579), (-1.44, 0.564), (-1.62, 0.517),
+               (-1.68, 0.474), (-1.73, 0.438), (-1.86, 0.384), (-1.89, 0.379), (-1.92, 0.378),
+               (-1.95, 0.402), (-2.02, 0.463), (-2.04, 0.479), (-2.055, 0.439), (-2.154, 0.166)],
+    "w_sill": [(2.177, 0.830), (1.80, 0.840), (0.00, 0.845), (-1.30, 0.843), (-1.56, 0.849),
+               (-1.68, 0.843), (-1.83, 0.796), (-1.95, 0.729), (-2.02, 0.662), (-2.04, 0.635),
+               (-2.055, 0.589), (-2.154, 0.266)],
 }
 
-# Plan-view taper of the ends (fraction of the local widths).  The nose is
-# flat across the number plate at bumper height and sweeps back towards the
-# fog lamps; at headlamp height it is swept further (the J11's arrow-shaped
+# Plan-view taper of the nose (fraction of the local widths).  It is flat
+# across the number plate at bumper height and sweeps back towards the fog
+# lamps; at headlamp height it is swept further (the J11's arrow-shaped
 # front).  Measured from the two front three-quarter photos and the side
-# silhouettes; the tail is rounder and the same at all heights.
+# silhouettes.
 PLAN_FRONT_LOW = [(1.72, 1.0), (1.84, 0.995), (1.90, 0.983), (1.9619, 0.927), (2.015, 0.825),
                   (2.0504, 0.734), (2.1035, 0.508), (2.1416, 0.34)]
 PLAN_FRONT_HIGH = [(1.66, 1.0), (1.78, 0.992), (1.88, 0.965), (1.9442, 0.915), (1.9885, 0.845),
                    (2.0327, 0.72), (2.077, 0.545), (2.1212, 0.36), (2.1416, 0.30)]
-PLAN_REAR = [(-2.124, 0.50), (-2.08, 0.63), (-2.02, 0.77), (-1.95, 0.89),
-             (-1.85, 0.965), (-1.70, 1.0)]
 
 
 NOSE = 0.04          # the last 4 cm close the plan outline with a round nose
 
 
 def plan_factor(x, high=False):
-    """Plan-view taper that rounds the front and rear ends.  Within NOSE of
-    each tip the width falls as sqrt(distance), so the outline meets the
-    centre line square (nose radius ~1.1 m) and the shell closes without a
-    cap."""
+    """Plan-view taper that rounds the nose.  Within NOSE of each tip the
+    width falls as sqrt(distance), so the outline meets the centre line
+    square and the shell closes without a cap."""
     x = np.asarray(x, float)
     front = PLAN_FRONT_HIGH if high else PLAN_FRONT_LOW
-    f = np.ones_like(x)
-    f = np.where(x > front[0][0], pchip(front, x), f)
-    f = np.where(x < PLAN_REAR[-1][0], pchip(PLAN_REAR, x), f)
+    f = np.where(x > front[0][0], pchip(front, x), 1.0)
     nose = np.sqrt(np.clip((X_F - x) / NOSE, 0.0, 1.0)) * np.sqrt(np.clip((x - X_R) / NOSE, 0.0, 1.0))
     return f * nose
 
@@ -140,10 +150,19 @@ def plan_factor(x, high=False):
 # The half section runs from the bottom centre, out along the floor, up the
 # left side and over the roof to the top centre, through 10 control points.
 # Consecutive control points are joined by centripetal Catmull-Rom segments;
-# the spline is split at CREASES so the shoulder line stays crisp.
+# the spline is split at CREASES so the shoulder line stays crisp.  Behind the
+# tail lamps (where the control point runs down across the bumper) the split
+# fades out and the section is smooth there.
 N_CTRL = 10
 CREASES = (4,)                            # shoulder crease
+CREASE_FADE = (-1.97, -1.88)              # smooth behind the first X, crisp in front of the second
 SEGMENTS = [4, 3, 8, 12, 6, 7, 8, 8, 10]  # coarse sampling (camera fitting)
+
+
+def crease_sharpness(x):
+    """1 where the shoulder crease is crisp, 0 where the section is smooth."""
+    t = np.clip((np.asarray(x, float) - CREASE_FADE[0]) / (CREASE_FADE[1] - CREASE_FADE[0]), 0.0, 1.0)
+    return t * t * (3.0 - 2.0 * t)
 
 
 def controls(x):
@@ -153,7 +172,7 @@ def controls(x):
     pf = plan_factor(x)                   # bumper-height rows
     ph = plan_factor(x, high=True)        # shoulder and above
     z_top = v["z_top"]
-    z_shelf = np.minimum(v["z_shelf"], z_top + 0.06)
+    z_shelf = np.minimum(v["z_shelf"], z_top + 0.005)
     z_sh = np.minimum(v["z_sh"], z_shelf - 0.01)
     z_bulge = np.minimum(v["z_bulge"], z_sh - 0.05)
     z_sill = np.minimum(v["z_sill"], z_bulge - 0.05)
@@ -161,7 +180,7 @@ def controls(x):
     w_sill, w_bulge, w_sh = v["w_sill"] * pf, v["w_bulge"] * pf, v["w_sh"] * ph
     w_shelf = v["w_shelf"] * ph
     w_rail = np.minimum(v["w_rail"], v["w_shelf"] - 0.04) * ph
-    h = z_top - z_shelf                   # < 0 where the tailgate centre dips
+    h = z_top - z_shelf                   # greenhouse (or bonnet / bumper crown) height
     hp, hn = np.maximum(h, 0.0), np.minimum(h, 0.0)
     zero = np.zeros_like(x)
     pts = [
@@ -186,10 +205,12 @@ def _pieces():
     return [(a, b) for a, b in zip(cuts[:-1], cuts[1:]) if b > a]
 
 
-def cr_eval(ctrl, k, f, alpha=0.5):
+def cr_eval(ctrl, k, f, alpha=0.5, sharp=None):
     """Evaluate segment k (between control points k and k+1) at fraction f
     for every row of ctrl (K, 10, 2).  k, f: (K,) arrays.  Centripetal
-    Catmull-Rom, reflected phantom points at piece ends."""
+    Catmull-Rom, reflected phantom points at piece ends (mirrored across
+    the centre line at the section ends).  sharp (K,): how crisp the creases
+    are per row (1 = split, 0 = smooth through; default 1)."""
     k = np.asarray(k, int)
     f = np.asarray(f, float)
     idx = np.arange(len(ctrl))
@@ -200,8 +221,21 @@ def cr_eval(ctrl, k, f, alpha=0.5):
         start[m], end[m] = a, b
     p1 = ctrl[idx, k]
     p2 = ctrl[idx, k + 1]
-    p0 = np.where((k > start)[:, None], ctrl[idx, np.maximum(k - 1, 0)], 2 * p1 - p2)
-    p3 = np.where((k + 1 < end)[:, None], ctrl[idx, np.minimum(k + 2, N_CTRL - 1)], 2 * p2 - p1)
+    prev = ctrl[idx, np.maximum(k - 1, 0)]
+    nxt = ctrl[idx, np.minimum(k + 2, N_CTRL - 1)]
+    p0 = np.where((k > start)[:, None], prev, 2 * p1 - p2)
+    p3 = np.where((k + 1 < end)[:, None], nxt, 2 * p2 - p1)
+    # both ends lie on the centre line: mirror the neighbour so the section
+    # crosses it square and the two halves meet without a crease
+    mirror = np.array([-1.0, 1.0])
+    p0 = np.where((k == 0)[:, None], p2 * mirror, p0)
+    p3 = np.where((k + 1 == N_CTRL - 1)[:, None], p1 * mirror, p3)
+    if sharp is not None:                 # blend the phantom points at a crease towards the neighbours
+        s = np.broadcast_to(np.asarray(sharp, float), k.shape)[:, None]
+        at_start = ((k == start) & np.isin(k, CREASES))[:, None]
+        at_end = ((k + 1 == end) & np.isin(k + 1, CREASES))[:, None]
+        p0 = np.where(at_start, s * p0 + (1.0 - s) * prev, p0)
+        p3 = np.where(at_end, s * p3 + (1.0 - s) * nxt, p3)
 
     def knot(p, q):
         return np.maximum(np.linalg.norm(q - p, axis=-1), 1e-5) ** alpha
@@ -252,7 +286,7 @@ def section(x, ring=None):
     b = np.arange(ring.n + 1, dtype=float)
     k, f = ring.kf(b)
     ctrl = np.repeat(controls(x), len(b), axis=0)
-    return cr_eval(ctrl, k, f)
+    return cr_eval(ctrl, k, f, sharp=crease_sharpness(x))
 
 
 # ---------------------------------------------------------------------------
@@ -282,7 +316,8 @@ def adaptive_stations(ds=0.02, n_ref=3000):
     k, f = ring.kf(b)
     ctrl = controls(xs)                                     # (n_ref, 10, 2)
     K = len(xs)
-    yz = cr_eval(np.repeat(ctrl, len(b), 0), np.tile(k, K), np.tile(f, K)).reshape(K, len(b), 2)
+    yz = cr_eval(np.repeat(ctrl, len(b), 0), np.tile(k, K), np.tile(f, K),
+                 sharp=np.repeat(crease_sharpness(xs), len(b))).reshape(K, len(b), 2)
     pts = np.concatenate([np.repeat(xs[:, None, None], len(b), 1), yz], -1)
     step = np.linalg.norm(np.diff(pts, axis=0), axis=-1).max(1)
     m = np.concatenate([[0.0], np.cumsum(step)])
@@ -311,7 +346,7 @@ class Surface:
         a, b = np.broadcast_arrays(a, b)
         x = self.x_of(a.ravel())
         k, f = self.ring.kf(b.ravel())
-        yz = cr_eval(controls(x), k, f)
+        yz = cr_eval(controls(x), k, f, sharp=crease_sharpness(x))
         return np.column_stack([x, side * yz[:, 0], yz[:, 1]])
 
     def normal(self, a, b, side=1.0, toward=None, h=0.01):
