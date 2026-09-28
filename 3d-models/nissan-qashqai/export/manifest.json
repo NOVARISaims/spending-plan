@@ -1,0 +1,1010 @@
+{
+  "name": "Nissan Qashqai 2017 (J11 pre-facelift), Gun Metallic, reg DE17 YAU",
+  "units": "centimetres",
+  "overall_cm": {
+    "length_x": 434.1,
+    "width_y": 180.6,
+    "height_z": 159.0,
+    "wheelbase": 264.6
+  },
+  "pivot": "ground level, midway between the axles, on the centre line",
+  "unreal_mapping": "UE(x, y, z) = Blender(x, -y, z) * 100 (FBX -Z forward / Y up)",
+  "materials": {
+    "M_Paint_GunMetallic": {
+      "ue_instance": "MI_QQ_Paint",
+      "ue_parent": "M_QQ_Paint",
+      "base_color_linear": [
+        0.125,
+        0.128,
+        0.133
+      ],
+      "roughness": 0.36,
+      "metallic": 0.75,
+      "clear_coat": 1.0,
+      "clear_coat_roughness": 0.03,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_Chrome": {
+      "ue_instance": "MI_QQ_Chrome",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.92,
+        0.92,
+        0.92
+      ],
+      "roughness": 0.06,
+      "metallic": 1.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_BlackGloss": {
+      "ue_instance": "MI_QQ_BlackGloss",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.008,
+        0.008,
+        0.009
+      ],
+      "roughness": 0.08,
+      "metallic": 0.0,
+      "clear_coat": 0.5,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_PanelGap": {
+      "ue_instance": "MI_QQ_PanelGap",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.02,
+        0.02,
+        0.021
+      ],
+      "roughness": 0.6,
+      "metallic": 0.3,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_PlasticBlack": {
+      "ue_instance": "MI_QQ_PlasticBlack",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.018,
+        0.018,
+        0.019
+      ],
+      "roughness": 0.62,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 25.0
+    },
+    "M_Liner": {
+      "ue_instance": "MI_QQ_Liner",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.012,
+        0.012,
+        0.012
+      ],
+      "roughness": 0.9,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_Underbody": {
+      "ue_instance": "MI_QQ_Underbody",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.03,
+        0.03,
+        0.03
+      ],
+      "roughness": 0.85,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_Glass": {
+      "ue_instance": "MI_QQ_Glass",
+      "ue_parent": "M_QQ_Glass",
+      "base_color_linear": [
+        0.8,
+        0.86,
+        0.84
+      ],
+      "roughness": 0.0,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 0.18,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_GlassFrit": {
+      "ue_instance": "MI_QQ_GlassFrit",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.006,
+        0.006,
+        0.006
+      ],
+      "roughness": 0.1,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_LensClear": {
+      "ue_instance": "MI_QQ_LensClear",
+      "ue_parent": "M_QQ_Glass",
+      "base_color_linear": [
+        0.95,
+        0.95,
+        0.95
+      ],
+      "roughness": 0.0,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 0.08,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_LampChrome": {
+      "ue_instance": "MI_QQ_LampChrome",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.62,
+        0.62,
+        0.63
+      ],
+      "roughness": 0.32,
+      "metallic": 1.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_LampReflector": {
+      "ue_instance": "MI_QQ_LampReflector",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.9,
+        0.9,
+        0.91
+      ],
+      "roughness": 0.08,
+      "metallic": 1.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_LampBlack": {
+      "ue_instance": "MI_QQ_LampBlack",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.015,
+        0.015,
+        0.016
+      ],
+      "roughness": 0.35,
+      "metallic": 0.2,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_LED_DRL": {
+      "ue_instance": "MI_QQ_LED",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.9,
+        0.93,
+        1.0
+      ],
+      "roughness": 0.2,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_TailLensRed": {
+      "ue_instance": "MI_QQ_TailRed",
+      "ue_parent": "M_QQ_Glass",
+      "base_color_linear": [
+        0.55,
+        0.012,
+        0.012
+      ],
+      "roughness": 0.05,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 0.75,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_TailLensClear": {
+      "ue_instance": "MI_QQ_TailClear",
+      "ue_parent": "M_QQ_Glass",
+      "base_color_linear": [
+        0.95,
+        0.93,
+        0.93
+      ],
+      "roughness": 0.03,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 0.12,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_TailInner": {
+      "ue_instance": "MI_QQ_TailInner",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.35,
+        0.02,
+        0.02
+      ],
+      "roughness": 0.25,
+      "metallic": 0.8,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_BrakeLight": {
+      "ue_instance": "MI_QQ_BrakeLight",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.5,
+        0.01,
+        0.01
+      ],
+      "roughness": 0.15,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_Reflector": {
+      "ue_instance": "MI_QQ_Reflector",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.45,
+        0.01,
+        0.01
+      ],
+      "roughness": 0.15,
+      "metallic": 0.2,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_Indicator": {
+      "ue_instance": "MI_QQ_Indicator",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.9,
+        0.45,
+        0.05
+      ],
+      "roughness": 0.1,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_GrilleHoneycomb": {
+      "ue_instance": "MI_QQ_Grille",
+      "ue_parent": "M_QQ_Grille",
+      "base_color_linear": [
+        0.02,
+        0.02,
+        0.02
+      ],
+      "roughness": 0.45,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": "honeycomb",
+      "uv_tiling": 10.0
+    },
+    "M_Tyre": {
+      "ue_instance": "MI_QQ_Tyre",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.022,
+        0.022,
+        0.024
+      ],
+      "roughness": 0.86,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_Alloy": {
+      "ue_instance": "MI_QQ_Alloy",
+      "ue_parent": "M_QQ_Paint",
+      "base_color_linear": [
+        0.5,
+        0.51,
+        0.53
+      ],
+      "roughness": 0.3,
+      "metallic": 0.9,
+      "clear_coat": 0.6,
+      "clear_coat_roughness": 0.08,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_WheelInner": {
+      "ue_instance": "MI_QQ_WheelInner",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.05,
+        0.05,
+        0.055
+      ],
+      "roughness": 0.6,
+      "metallic": 0.5,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_LugNut": {
+      "ue_instance": "MI_QQ_LugNut",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.7,
+        0.7,
+        0.72
+      ],
+      "roughness": 0.2,
+      "metallic": 1.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_BrakeDisc": {
+      "ue_instance": "MI_QQ_BrakeDisc",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.28,
+        0.28,
+        0.28
+      ],
+      "roughness": 0.42,
+      "metallic": 1.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_BrakeHat": {
+      "ue_instance": "MI_QQ_BrakeHat",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.12,
+        0.1,
+        0.09
+      ],
+      "roughness": 0.7,
+      "metallic": 0.6,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_Caliper": {
+      "ue_instance": "MI_QQ_Caliper",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.06,
+        0.06,
+        0.065
+      ],
+      "roughness": 0.5,
+      "metallic": 0.4,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_MirrorGlass": {
+      "ue_instance": "MI_QQ_MirrorGlass",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.8,
+        0.82,
+        0.85
+      ],
+      "roughness": 0.02,
+      "metallic": 1.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_BadgeDark": {
+      "ue_instance": "MI_QQ_BadgeDark",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.02,
+        0.02,
+        0.025
+      ],
+      "roughness": 0.2,
+      "metallic": 0.5,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_PlateFront": {
+      "ue_instance": "MI_QQ_PlateFront",
+      "ue_parent": "M_QQ_Plate",
+      "base_color_linear": [
+        0.9,
+        0.9,
+        0.9
+      ],
+      "roughness": 0.25,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": "plate_front",
+      "uv_tiling": 1.0
+    },
+    "M_PlateRear": {
+      "ue_instance": "MI_QQ_PlateRear",
+      "ue_parent": "M_QQ_Plate",
+      "base_color_linear": [
+        0.9,
+        0.75,
+        0.0
+      ],
+      "roughness": 0.25,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": "plate_rear",
+      "uv_tiling": 1.0
+    },
+    "M_PlateEdge": {
+      "ue_instance": "MI_QQ_PlateEdge",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.03,
+        0.03,
+        0.03
+      ],
+      "roughness": 0.4,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_InteriorPlastic": {
+      "ue_instance": "MI_QQ_InteriorPlastic",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.018,
+        0.018,
+        0.02
+      ],
+      "roughness": 0.7,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    },
+    "M_SeatFabric": {
+      "ue_instance": "MI_QQ_SeatFabric",
+      "ue_parent": "M_QQ_Solid",
+      "base_color_linear": [
+        0.022,
+        0.022,
+        0.025
+      ],
+      "roughness": 0.95,
+      "metallic": 0.0,
+      "clear_coat": 0.0,
+      "clear_coat_roughness": 0.0,
+      "opacity": 1.0,
+      "emissive": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "texture": null,
+      "uv_tiling": 1.0
+    }
+  },
+  "textures": {
+    "plate_front": "textures/T_Plate_Front.png",
+    "plate_rear": "textures/T_Plate_Rear.png",
+    "honeycomb_base": "textures/T_Honeycomb_BaseColor.png",
+    "honeycomb_normal": "textures/T_Honeycomb_Normal.png",
+    "plastic_grain_normal": "textures/T_PlasticGrain_Normal.png",
+    "normal_convention": "OpenGL (+Y); flip green in Unreal"
+  },
+  "wheels": {
+    "FL": {
+      "blender_m": [
+        1.323,
+        0.7825,
+        0.31
+      ],
+      "unreal_cm": [
+        132.3,
+        -78.25,
+        31.0
+      ],
+      "yaw_deg_unreal": 0.0
+    },
+    "FR": {
+      "blender_m": [
+        1.323,
+        -0.7825,
+        0.31
+      ],
+      "unreal_cm": [
+        132.3,
+        78.25,
+        31.0
+      ],
+      "yaw_deg_unreal": 180.0
+    },
+    "RL": {
+      "blender_m": [
+        -1.323,
+        0.78,
+        0.31
+      ],
+      "unreal_cm": [
+        -132.3,
+        -78.0,
+        31.0
+      ],
+      "yaw_deg_unreal": 0.0
+    },
+    "RR": {
+      "blender_m": [
+        -1.323,
+        -0.78,
+        0.31
+      ],
+      "unreal_cm": [
+        -132.3,
+        78.0,
+        31.0
+      ],
+      "yaw_deg_unreal": 180.0
+    }
+  },
+  "wheel_radius_cm": 34.55,
+  "parts": [
+    {
+      "name": "SM_Qashqai_Body",
+      "fbx": "SM_Qashqai_Body.fbx",
+      "material_slots": [
+        {
+          "slot": "M_Paint_GunMetallic",
+          "ue_instance": "MI_QQ_Paint"
+        },
+        {
+          "slot": "M_PlasticBlack",
+          "ue_instance": "MI_QQ_PlasticBlack"
+        },
+        {
+          "slot": "M_Underbody",
+          "ue_instance": "MI_QQ_Underbody"
+        },
+        {
+          "slot": "M_BlackGloss",
+          "ue_instance": "MI_QQ_BlackGloss"
+        },
+        {
+          "slot": "M_PanelGap",
+          "ue_instance": "MI_QQ_PanelGap"
+        },
+        {
+          "slot": "M_Chrome",
+          "ue_instance": "MI_QQ_Chrome"
+        },
+        {
+          "slot": "M_GlassFrit",
+          "ue_instance": "MI_QQ_GlassFrit"
+        },
+        {
+          "slot": "M_LampChrome",
+          "ue_instance": "MI_QQ_LampChrome"
+        },
+        {
+          "slot": "M_LampBlack",
+          "ue_instance": "MI_QQ_LampBlack"
+        },
+        {
+          "slot": "M_LampReflector",
+          "ue_instance": "MI_QQ_LampReflector"
+        },
+        {
+          "slot": "M_LensClear",
+          "ue_instance": "MI_QQ_LensClear"
+        },
+        {
+          "slot": "M_LED_DRL",
+          "ue_instance": "MI_QQ_LED"
+        },
+        {
+          "slot": "M_TailInner",
+          "ue_instance": "MI_QQ_TailInner"
+        },
+        {
+          "slot": "M_GrilleHoneycomb",
+          "ue_instance": "MI_QQ_Grille"
+        },
+        {
+          "slot": "M_Liner",
+          "ue_instance": "MI_QQ_Liner"
+        },
+        {
+          "slot": "M_MirrorGlass",
+          "ue_instance": "MI_QQ_MirrorGlass"
+        },
+        {
+          "slot": "M_Indicator",
+          "ue_instance": "MI_QQ_Indicator"
+        },
+        {
+          "slot": "M_BadgeDark",
+          "ue_instance": "MI_QQ_BadgeDark"
+        },
+        {
+          "slot": "M_PlateEdge",
+          "ue_instance": "MI_QQ_PlateEdge"
+        },
+        {
+          "slot": "M_PlateFront",
+          "ue_instance": "MI_QQ_PlateFront"
+        },
+        {
+          "slot": "M_PlateRear",
+          "ue_instance": "MI_QQ_PlateRear"
+        },
+        {
+          "slot": "M_Reflector",
+          "ue_instance": "MI_QQ_Reflector"
+        },
+        {
+          "slot": "M_BrakeLight",
+          "ue_instance": "MI_QQ_BrakeLight"
+        },
+        {
+          "slot": "M_Caliper",
+          "ue_instance": "MI_QQ_Caliper"
+        }
+      ],
+      "collision_hulls": 3,
+      "triangles": 198672
+    },
+    {
+      "name": "SM_Qashqai_Glass",
+      "fbx": "SM_Qashqai_Glass.fbx",
+      "material_slots": [
+        {
+          "slot": "M_Glass",
+          "ue_instance": "MI_QQ_Glass"
+        },
+        {
+          "slot": "M_GlassFrit",
+          "ue_instance": "MI_QQ_GlassFrit"
+        }
+      ],
+      "collision_hulls": 0,
+      "triangles": 20746
+    },
+    {
+      "name": "SM_Qashqai_Lenses",
+      "fbx": "SM_Qashqai_Lenses.fbx",
+      "material_slots": [
+        {
+          "slot": "M_LensClear",
+          "ue_instance": "MI_QQ_LensClear"
+        },
+        {
+          "slot": "M_TailLensRed",
+          "ue_instance": "MI_QQ_TailRed"
+        },
+        {
+          "slot": "M_TailLensClear",
+          "ue_instance": "MI_QQ_TailClear"
+        }
+      ],
+      "collision_hulls": 0,
+      "triangles": 4588
+    },
+    {
+      "name": "SM_Qashqai_Interior",
+      "fbx": "SM_Qashqai_Interior.fbx",
+      "material_slots": [
+        {
+          "slot": "M_InteriorPlastic",
+          "ue_instance": "MI_QQ_InteriorPlastic"
+        },
+        {
+          "slot": "M_SeatFabric",
+          "ue_instance": "MI_QQ_SeatFabric"
+        }
+      ],
+      "collision_hulls": 0,
+      "triangles": 808
+    },
+    {
+      "name": "SM_Qashqai_Wheel",
+      "fbx": "SM_Qashqai_Wheel.fbx",
+      "material_slots": [
+        {
+          "slot": "M_Tyre",
+          "ue_instance": "MI_QQ_Tyre"
+        },
+        {
+          "slot": "M_Alloy",
+          "ue_instance": "MI_QQ_Alloy"
+        },
+        {
+          "slot": "M_WheelInner",
+          "ue_instance": "MI_QQ_WheelInner"
+        },
+        {
+          "slot": "M_BlackGloss",
+          "ue_instance": "MI_QQ_BlackGloss"
+        },
+        {
+          "slot": "M_Chrome",
+          "ue_instance": "MI_QQ_Chrome"
+        },
+        {
+          "slot": "M_LugNut",
+          "ue_instance": "MI_QQ_LugNut"
+        },
+        {
+          "slot": "M_BrakeDisc",
+          "ue_instance": "MI_QQ_BrakeDisc"
+        },
+        {
+          "slot": "M_BrakeHat",
+          "ue_instance": "MI_QQ_BrakeHat"
+        }
+      ],
+      "collision_hulls": 0,
+      "triangles": 11650
+    }
+  ]
+}

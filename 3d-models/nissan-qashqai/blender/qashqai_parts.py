@@ -264,7 +264,10 @@ def build_fog(kit, c, n, w, h, ring):
     dome = [ell(ri, qi, -0.004), ell(ri * 0.75, qi * 0.75, -0.001), ell(ri * 0.4, qi * 0.4, 0.001)]
     kit.loft(dome, "lens_clear", closed=True, caps=False)
     kit.fan(dome[-1], o + nn * 0.0015, "lens_clear")
-    kit.loft([ell(ri, qi, -0.040), ell(ri, qi, -0.004)], "lamp_chrome", closed=True, caps=True)
+    # dark housing with a small chrome reflector cup in the middle
+    kit.loft([ell(ri, qi, -0.040), ell(ri, qi, -0.004)], "lamp_black", closed=True, caps=True)
+    cup = [ell(ri * 0.55, qi * 0.75, -0.012), ell(ri * 0.35, qi * 0.5, -0.026), ell(ri * 0.1, qi * 0.15, -0.032)]
+    kit.loft(cup, "lamp_chrome", closed=True, caps=False)
 
 
 # ---------------------------------------------------------------------------

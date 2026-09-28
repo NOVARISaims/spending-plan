@@ -7,8 +7,9 @@ surround), painted Gun Metallic grey and registered DE17 YAU.
 The body shell is a loft (qashqai_body) with every feature outline cut in
 exactly (body_build / body_mesh); wheels, mirrors, handles, badges, lamp
 internals, plates and a simple interior are procedural parts
-(qashqai_parts).  Size follows the published spec: 4377 x 1806 x 1590 mm,
-2646 mm wheelbase, 215/60 R17 tyres.
+(qashqai_parts).  Width, height, wheelbase and tyres follow the published
+spec (1806 mm, 1590 mm, 2646 mm, 215/60 R17); the length follows the photos
+(4341 mm, see qashqai_body).
 
 Usage:
     blender -b -P build_qashqai.py -- [--out DIR] [--render] [--samples N]
@@ -53,7 +54,7 @@ MESH_DS = 0.02            # body grid spacing (m)
 # Materials: key -> (Blender name, UE instance, UE parent, settings)
 #   settings: base colour (linear), roughness, metallic, and extras
 # ---------------------------------------------------------------------------
-PAINT = (0.170, 0.175, 0.182)      # Gun Metallic (KAD), calibrated to the 2019 photos
+PAINT = (0.125, 0.128, 0.133)      # Gun Metallic (KAD), calibrated to the 2019 photos
 MATS = {
     "paint": ("M_Paint_GunMetallic", "MI_QQ_Paint", "M_QQ_Paint",
               dict(color=PAINT, rough=0.36, metal=0.75, coat=1.0, coat_rough=0.03)),
@@ -62,7 +63,7 @@ MATS = {
                     dict(color=(0.008, 0.008, 0.009), rough=0.08, metal=0.0, coat=0.5)),
     "gap": ("M_PanelGap", "MI_QQ_PanelGap", "M_QQ_Solid", dict(color=(0.02, 0.02, 0.021), rough=0.6, metal=0.3)),
     "plastic": ("M_PlasticBlack", "MI_QQ_PlasticBlack", "M_QQ_Solid",
-                dict(color=(0.018, 0.018, 0.019), rough=0.62, metal=0.0, normal="grain")),
+                dict(color=(0.018, 0.018, 0.019), rough=0.62, metal=0.0, normal="grain", uv_tiling=25.0)),
     "black_plastic": ("M_PlasticBlack", None, None, None),
     "liner": ("M_Liner", "MI_QQ_Liner", "M_QQ_Solid", dict(color=(0.012, 0.012, 0.012), rough=0.9, metal=0.0)),
     "underbody": ("M_Underbody", "MI_QQ_Underbody", "M_QQ_Solid",
@@ -74,7 +75,9 @@ MATS = {
     "lens_clear": ("M_LensClear", "MI_QQ_LensClear", "M_QQ_Glass",
                    dict(color=(0.95, 0.95, 0.95), rough=0.0, metal=0.0, transmission=1.0, ior=1.49, opacity=0.08)),
     "lamp_chrome": ("M_LampChrome", "MI_QQ_LampChrome", "M_QQ_Solid",
-                    dict(color=(0.85, 0.85, 0.86), rough=0.12, metal=1.0)),
+                    dict(color=(0.62, 0.62, 0.63), rough=0.32, metal=1.0)),
+    "lamp_reflector": ("M_LampReflector", "MI_QQ_LampReflector", "M_QQ_Solid",
+                       dict(color=(0.90, 0.90, 0.91), rough=0.08, metal=1.0)),
     "lamp_black": ("M_LampBlack", "MI_QQ_LampBlack", "M_QQ_Solid",
                    dict(color=(0.015, 0.015, 0.016), rough=0.35, metal=0.2)),
     "led": ("M_LED_DRL", "MI_QQ_LED", "M_QQ_Solid",
@@ -94,7 +97,7 @@ MATS = {
     "indicator": ("M_Indicator", "MI_QQ_Indicator", "M_QQ_Solid",
                   dict(color=(0.9, 0.45, 0.05), rough=0.1, metal=0.0)),
     "grille": ("M_GrilleHoneycomb", "MI_QQ_Grille", "M_QQ_Grille",
-               dict(color=(0.02, 0.02, 0.02), rough=0.45, metal=0.0, texture="honeycomb")),
+               dict(color=(0.02, 0.02, 0.02), rough=0.45, metal=0.0, texture="honeycomb", uv_tiling=10.0)),
     "tyre": ("M_Tyre", "MI_QQ_Tyre", "M_QQ_Solid", dict(color=(0.022, 0.022, 0.024), rough=0.86, metal=0.0)),
     "alloy": ("M_Alloy", "MI_QQ_Alloy", "M_QQ_Paint",
               dict(color=(0.50, 0.51, 0.53), rough=0.30, metal=0.9, coat=0.6, coat_rough=0.08)),
@@ -197,9 +200,18 @@ def make_materials(tex):
             t.location = (-500, 200)
             nt.links.new(t.outputs["Color"], bsdf.inputs["Base Color"])
         if tx == "honeycomb" or s.get("normal") == "grain":
+            # UVs are 1 unit per metre; tile the texture (glTF: KHR_texture_transform)
+            uvn = nt.nodes.new("ShaderNodeTexCoord")
+            uvn.location = (-1100, -100)
+            mp = nt.nodes.new("ShaderNodeMapping")
+            mp.location = (-900, -100)
+            t = s["uv_tiling"]
+            mp.inputs["Scale"].default_value = (t, t, 1.0)
+            nt.links.new(uvn.outputs["UV"], mp.inputs["Vector"])
             tn = nt.nodes.new("ShaderNodeTexImage")
             tn.image = tex["honeycomb_normal" if tx == "honeycomb" else "grain_normal"]
             tn.location = (-600, -300)
+            nt.links.new(mp.outputs["Vector"], tn.inputs["Vector"])
             nm = nt.nodes.new("ShaderNodeNormalMap")
             nm.inputs["Strength"].default_value = 1.0 if tx == "honeycomb" else 0.35
             nm.location = (-300, -300)
@@ -209,6 +221,7 @@ def make_materials(tex):
                 tb = nt.nodes.new("ShaderNodeTexImage")
                 tb.image = tex["honeycomb_base"]
                 tb.location = (-600, 200)
+                nt.links.new(mp.outputs["Vector"], tb.inputs["Vector"])
                 nt.links.new(tb.outputs["Color"], bsdf.inputs["Base Color"])
         made[name] = m
     for key, (name, _, _, _) in MATS.items():
@@ -227,7 +240,7 @@ def ue_materials():
                      "clear_coat": s.get("coat", 0.0), "clear_coat_roughness": s.get("coat_rough", 0.0),
                      "opacity": s.get("opacity", 1.0),
                      "emissive": [c * s.get("emit", 0.0) for c in s.get("emission", (0, 0, 0))],
-                     "texture": s.get("texture")}
+                     "texture": s.get("texture"), "uv_tiling": s.get("uv_tiling", 1.0)}
     return out
 
 
@@ -271,28 +284,21 @@ def build_body(surf, log):
 
 
 def build_lamps(body, lenses, h):
-    # headlamp: clear lens, chrome reflector bowl with a black bezel
+    # headlamp: clear lens over a satin silver housing with two reflector
+    # bowls, a black shade along the top and the LED daytime strip
     ids = h.select(lambda c: c[0] == "headlamp")
     bb.add_region_part(lenses, h, ids, lambda k: "lens_clear", disp=lambda v: np.full(len(v), 0.0012))
-    disp, dist = bb.bowl(h, ids, depth=0.050, ramp=0.010)
-    top_z = np.percentile(h.P[sorted({v for k in ids for v in h.faces[k]}), 2], 80) if ids else 0.0
-
-    def hl_mat(k):
-        # chrome reflector with a black bezel along the top edge
-        return "lamp_black" if h.P[h.faces[k], 2].mean() > top_z else "lamp_chrome"
-    bb.add_region_part(body, h, ids, hl_mat, disp=disp, normals="panel", depth=0.050)
-    headlamp_internals(body, h, ids, dist)
+    bb.recess(body, h, ids, 0.026, "lamp_chrome", "lamp_black")
+    headlamp_internals(body, h, ids)
     # tail lamp: red lens with the clear reversing-lamp band, dark red housing
     ids = h.select(lambda c: c[0] == "taillamp")
     white = tail_white_test(h)
     bb.add_region_part(lenses, h, ids, lambda k: "tail_clear" if white(k) else "tail_red",
                        disp=lambda v: np.full(len(v), 0.0012))
-    disp, dist = bb.bowl(h, ids, depth=0.040, ramp=0.010)
-    bb.add_region_part(body, h, ids, lambda k: "tail_inner", disp=disp, normals="panel", depth=0.040)
+    bb.recess(body, h, ids, 0.025, "tail_inner", "tail_inner")
     # fog lamp opening: dark pocket behind the lamp unit
     ids = h.select(lambda c: c[0] == "fog")
-    disp, _ = bb.bowl(h, ids, depth=0.030, ramp=0.006)
-    bb.add_region_part(body, h, ids, lambda k: "lamp_black", disp=disp, normals="panel", depth=0.030)
+    bb.recess(body, h, ids, 0.030, "lamp_black", "lamp_black")
 
 
 def tail_white_test(h):
@@ -308,8 +314,32 @@ def tail_white_test(h):
     return test
 
 
-def headlamp_internals(body, h, ids, dist):
-    """Two chrome reflector cups and an LED daytime strip inside the lamp."""
+def lamp_edge_path(h, ab, inward, back, step=0.012):
+    """A smooth path just inside a lamp outline: the outline points (a, b)
+    moved `inward` along the surface (towards the lamp's middle, which is
+    roughly up for the lower edge and down for the upper edge) and `back`
+    behind the surface.  Returns points and the surface normals."""
+    P = h.shell.eval(ab[:, 0], ab[:, 1])
+    N = h.shell.base_normal(ab[:, 0], ab[:, 1])
+    z = np.array([0.0, 0.0, 1.0])
+    T = z - N * (N @ z)[:, None]
+    T /= np.maximum(np.linalg.norm(T, axis=1, keepdims=True), 1e-9)
+    Q = P + T * inward - N * back
+    for _ in range(4):                                   # iron out small wiggles
+        Q[1:-1] = 0.5 * Q[1:-1] + 0.25 * (Q[:-2] + Q[2:])
+    seg = np.linalg.norm(np.diff(Q, axis=0), axis=1)
+    s = np.concatenate([[0.0], np.cumsum(seg)])
+    n = max(2, int(math.ceil(s[-1] / step)) + 1)
+    si = np.linspace(0.0, s[-1], n)
+    Qi = np.column_stack([np.interp(si, s, Q[:, k]) for k in range(3)])
+    Ni = np.column_stack([np.interp(si, s, N[:, k]) for k in range(3)])
+    Ni /= np.linalg.norm(Ni, axis=1, keepdims=True)
+    return Qi, Ni
+
+
+def headlamp_internals(body, h, ids):
+    """Reflector bowls, the LED daytime strip along the lower edge and a
+    black shade along the upper edge, all behind the lens."""
     vids = np.array(sorted({v for k in ids for v in h.faces[k]}))
     P = h.P[vids]
     N = h.N[vids]
@@ -326,30 +356,28 @@ def headlamp_internals(body, h, ids, dist):
     proj = Q @ ax
     lo, hi = proj.min(), proj.max()
     kit = mk.Kit("hl")
-    for t, r in ((0.40, 0.034), (0.62, 0.040)):
+    for t, r in ((0.40, 0.036), (0.62, 0.042)):
         p0 = c + ax * (lo + (hi - lo) * t)
-        # sit the cup below the lens surface
         k = np.argmin(np.linalg.norm(P - p0, axis=1))
-        base = P[k] - n * 0.030
-        fr = mk.frame_from(base, n)
-        o, u, v, nn = fr
+        o, u, v, nn = mk.frame_from(P[k] - n * 0.028, n)
         rings = []
         for rr, zz in ((r, 0.018), (r * 0.80, 0.006), (r * 0.45, -0.008), (r * 0.15, -0.012)):
             rings.append([o + u * rr * math.cos(a) + v * rr * math.sin(a) + nn * zz
-                          for a in np.linspace(0, 2 * np.pi, 32, endpoint=False)])
-        kit.loft(rings[::-1], "lamp_chrome", closed=True, caps=False)
+                          for a in np.linspace(0, 2 * np.pi, 40, endpoint=False)])
+        kit.loft(rings[::-1], "lamp_reflector", closed=True, caps=False)
         bulb = [o + u * 0.012 * math.cos(a) + v * 0.012 * math.sin(a) + nn * 0.004
                 for a in np.linspace(0, 2 * np.pi, 16, endpoint=False)]
         kit.fan(bulb, o + nn * 0.016, "lens_clear")
-    # LED strip along the lower edge, 8 mm behind the lens
-    low = P[:, 2] < np.percentile(P[:, 2], 30)
-    pts = P[low]
-    order = np.argsort((pts - c) @ ax)
-    pts = pts[order][::max(1, len(pts) // 14)]
-    path = [p - n * 0.010 + np.array([0, 0, 0.010]) for p in pts]
-    if len(path) >= 2:
-        ups = [np.array([0.0, 0.0, 1.0])] * len(path)
-        kit.sweep([(-0.003, -0.002), (0.003, -0.002), (0.003, 0.002), (-0.003, 0.002)], path, ups, "led")
+    hl = h.spec.regions["hl"]
+    n_per = 6
+    # LED strip: along the lower edge (outline points 1-9), 9 mm behind the lens
+    path, pn = lamp_edge_path(h, hl[1 * n_per:9 * n_per + 1], inward=0.010, back=0.009)
+    kit.sweep([(-0.0035, -0.0015), (0.0035, -0.0015), (0.0035, 0.0015), (-0.0035, 0.0015)],
+              path, pn, "led")
+    # black shade just behind the lens along the upper edge (points 12-19)
+    path, pn = lamp_edge_path(h, hl[12 * n_per:19 * n_per + 1], inward=-0.009, back=0.004)
+    kit.sweep([(-0.009, -0.001), (0.009, -0.001), (0.009, 0.001), (-0.009, 0.001)],
+              path, pn, "lamp_black")
     kit_into(body, kit)
 
 
@@ -364,11 +392,9 @@ def kit_into(md, kit):
 def build_grilles(body, h):
     # upper grille: honeycomb recessed 35 mm behind the opening
     ids = h.select(lambda c: c[0] == "grille")
-    disp, _ = bb.bowl(h, ids, depth=0.035, ramp=0.006)
-    bb.add_region_part(body, h, ids, lambda k: "grille", disp=disp, normals="panel", depth=0.035)
+    bb.recess(body, h, ids, 0.035, "grille", "lamp_black")
     ids = h.select(lambda c: c[0] == "grille_low")
-    disp, _ = bb.bowl(h, ids, depth=0.030, ramp=0.006)
-    bb.add_region_part(body, h, ids, lambda k: "grille", disp=disp, normals="panel", depth=0.030)
+    bb.recess(body, h, ids, 0.030, "grille", "lamp_black")
     # two horizontal slats across the lower grille
     S = h.spec
     for z in (0.352, 0.405):
@@ -380,7 +406,7 @@ def build_grilles(body, h):
     high = np.array(F.CHROME_V_HIGH)
     band = np.vstack([low, high[::-1]])
     poly = S.view_poly("front", band)
-    bb.surface_patch(body, h, poly, offset=0.006, mat="chrome", thickness=0.040)
+    bb.surface_patch(body, h, poly, offset=0.006, mat="chrome", thickness=0.016)
 
 
 # ---------------------------------------------------------------------------
@@ -424,7 +450,7 @@ def build_parts(halves, surf):
     fr = mk.frame_from(P + nf * 0.012, nf)
     qp.build_plate(kit, fr, "plate_front")
     holder = mk.frame_from(P + nf * 0.008, nf)
-    kit.prism(mk.rounded_rect2d(0.540, 0.128, 0.010), -0.075, 0.0, holder, "plate_edge", cap0=False)
+    kit.prism(mk.rounded_rect2d(0.528, 0.118, 0.010), -0.045, 0.0, holder, "plate_edge", cap0=False)
     P, N = shell_point(left, "rear", (0.0, F.PLATE_REAR["z"]))
     nr = np.array([N[0], 0.0, N[2]])
     nr /= np.linalg.norm(nr)
@@ -673,7 +699,16 @@ def main(argv):
             export_fbx(os.path.join(out, name + ".fbx"), objs)
             ob.hide_viewport = hidden
         render_objs = [o for n, o in objects.items() if n != "SM_Qashqai_Wheel"] + list(wheels.values())
+        # the FBX exporter mixes up material slots on shared meshes: give each
+        # wheel its own copy for the combined file (glTF keeps the instancing)
+        shared = wheel_mesh.data
+        for ob in wheels.values():
+            ob.data = shared.copy()
         export_fbx(os.path.join(out, "Qashqai.fbx"), render_objs)
+        for ob in wheels.values():
+            copy = ob.data
+            ob.data = shared
+            bpy.data.meshes.remove(copy)
         export_glb(os.path.join(out, "Qashqai.glb"), render_objs)
 
     for name, ob in objects.items():

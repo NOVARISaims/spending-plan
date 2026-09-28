@@ -106,14 +106,17 @@ class Recess:
         return np.where(-(N @ d) > 0.5, out, 0.0)
 
 
+SWAGE_RAMP = 0.018
+
+
 def swage_profile(s, x):
     """Lower-door swage flowing into the rear haunch.  s > 0 is below the
     line (inside the arc over the rear wheel).  The doors step in below the
     crease; over the rear wheel the haunch stands proud."""
     k = np.clip((x + 0.86) / -0.14, 0.0, 1.0)            # 0 on the doors, 1 on the haunch
     k = k * k * (3 - 2 * k)
-    door = -0.0065 * np.clip(s / 0.018, 0.0, 1.0) * np.clip(1.0 - (s - 0.018) / 0.12, 0.0, 1.0)
-    haunch = 0.0085 * np.clip(s / 0.035, 0.0, 1.0)
+    door = -0.0090 * np.clip(s / SWAGE_RAMP, 0.0, 1.0) * np.clip(1.0 - (s - SWAGE_RAMP) / 0.12, 0.0, 1.0)
+    haunch = 0.0115 * np.clip(s / SWAGE_RAMP, 0.0, 1.0)
     out = (1.0 - k) * door + k * haunch
     return np.where(s > 0.0, out, 0.0)
 
@@ -131,6 +134,63 @@ class Swage:
         out *= np.clip((0.80 - P[:, 0]) / 0.12 + 1.0, 0.0, 1.0)
         out *= np.clip((P[:, 2] - 0.42) / 0.05, 0.0, 1.0)
         return np.where(np.abs(N[:, 1]) > 0.5, out, 0.0)
+
+
+class Crease:
+    """Crisp character line on the front of the car: below the line the
+    surface steps back and blends out again over `w` (a trough with a sharp
+    upper edge).  The line is in front-view coordinates (|Y|, Z).  The step
+    fades in and out over `fade` metres at the ends of the line and keeps
+    `margin` clear of the `keep_off` outline (the headlamp)."""
+
+    def __init__(self, line, depth, w, fade, keep_off=None, margin=0.015):
+        self.line = np.asarray(line, float)
+        seg = np.linalg.norm(np.diff(self.line, axis=0), axis=1)
+        self.cum = np.concatenate([[0.0], np.cumsum(seg)])
+        self.depth, self.w, self.fade = depth, w, fade
+        self.keep_off = None if keep_off is None else np.asarray(keep_off, float)
+        self.margin = margin
+        self.lo = self.line.min(0) - w - 0.02
+        self.hi = self.line.max(0) + w + 0.02
+
+    def __call__(self, P, N, sides):
+        out = np.zeros(len(P))
+        p2 = np.column_stack([np.abs(P[:, 1]), P[:, 2]])
+        m = np.all((p2 >= self.lo) & (p2 <= self.hi), axis=1) & (N[:, 0] > 0.2)
+        if not m.any():
+            return out
+        q = p2[m]
+        best = np.full(len(q), np.inf)
+        sgn = np.ones(len(q))
+        arc = np.zeros(len(q))
+        for i, (a, b) in enumerate(zip(self.line[:-1], self.line[1:])):
+            ab = b - a
+            L2 = max(ab @ ab, 1e-18)
+            t = np.clip(((q - a) @ ab) / L2, 0.0, 1.0)
+            d = np.linalg.norm(q - (a + t[:, None] * ab), axis=1)
+            cross = ab[0] * (q[:, 1] - a[1]) - ab[1] * (q[:, 0] - a[0])
+            upd = d < best
+            best[upd], sgn[upd] = d[upd], np.sign(cross[upd])
+            arc[upd] = self.cum[i] + t[upd] * math.sqrt(L2)
+        s = best * sgn                                   # > 0 above the line
+        t = np.clip(-s / self.w, 0.0, 1.0)
+        g = np.where(s < 0.0, 6.75 * t * (1.0 - t) ** 2, 0.0)
+        L = self.cum[-1]
+        g *= bm.smoothstep(arc / self.fade) * bm.smoothstep((L - arc) / self.fade)
+        g *= bm.smoothstep((N[m, 0] - 0.3) / 0.25)
+        if self.keep_off is not None:
+            closed = np.vstack([self.keep_off, self.keep_off[:1]])
+            dist, _ = bm.polyline_distance(q, closed)
+            inside = bm.points_in_polygon(q, self.keep_off)
+            g *= np.where(inside, 0.0, bm.smoothstep(dist / self.margin))
+        out[m] = -self.depth * g
+        return out
+
+
+def front_view(surf, ab, side):
+    """Front-view coordinates (|Y|, Z) of surface points given as (a, b)."""
+    P = surf.eval(ab[:, 0], ab[:, 1], side)
+    return np.column_stack([np.abs(P[:, 1]), P[:, 2]])
 
 
 # ---------------------------------------------------------------------------
@@ -263,7 +323,7 @@ def build_spec(surf, side):
     # --- panel gaps ---------------------------------------------------------------
     for name, line in F.GAPS_SIDE.items():
         S.groove(name, "side", extend(line, 0.004))
-    S.groove("bonnet_front", "front", np.array(F.BONNET_FRONT))
+    # (the bonnet's front edge is the top edge of the grille and headlamps)
     S.groove("bonnet_side", "top", np.array(F.BONNET_SIDE_TOP))
     S.groove("bonnet_rear", "top", np.array([(F.COWL_X, 0.0), (F.COWL_X, 0.70)]))
     S.groove("tailgate", "rear", np.array(F.TAILGATE_GAP))
@@ -281,6 +341,20 @@ def build_spec(surf, side):
     # --- sculpting --------------------------------------------------------------------
     S.lines["swage"] = S.view_poly("side", np.array(F.SWAGE), closed=False)
     S.fields.append(Swage(np.array(F.SWAGE)))
+    sw = np.array(F.SWAGE)
+    S.lines["swage_ramp"] = S.view_poly("side", bm.offset_polyline(sw, SWAGE_RAMP, closed=False), closed=False)
+    # bonnet: the centre section stands proud of two creases that converge
+    # towards the grille
+    crease = np.array(F.BONNET_CREASE)
+    S.lines["bonnet_crease"] = S.view_poly("top", crease, closed=False)
+    S.lines["bonnet_ramp"] = S.view_poly("top", bm.offset_polyline(crease, -0.045, closed=False), closed=False)
+    S.fields.append(bm.Displacement("top", crease, lambda s: 0.0045 * np.clip(-s / 0.045, 0.0, 1.0),
+                                    box=(crease[0, 0] - 0.02, crease[-1, 0] + 0.02, 0.0, 3.0)))
+    # front bumper: crisp crease under each headlamp, stepping back below it
+    bc = bm.smooth_open(S.mp.map(F.BUMPER_CREASE), 6)
+    S.lines["bumper_crease"] = bc
+    S.fields.append(Crease(front_view(surf, bc, side), depth=0.0055, w=0.045, fade=0.05,
+                           keep_off=front_view(surf, S.regions["hl"], side)))
     for (x, z) in F.HANDLES:
         S.fields.append(Dish("side", (x, z - 0.012), (0.080, 0.030), 0.010))
     return S
@@ -446,13 +520,13 @@ class MeshData:
     def to_object(self, collection, materials, weld_centre=True, smooth=True):
         me = bpy.data.meshes.new(self.name)
         me.from_pydata(self.verts, [], self.faces)
-        names = []
+        slots = []                               # one slot per material (keys may alias)
         for m in self.mats:
-            if m not in names:
-                names.append(m)
-        for n in names:
-            me.materials.append(materials[n])
-        idx = {n: i for i, n in enumerate(names)}
+            if materials[m] not in slots:
+                slots.append(materials[m])
+        for mat in slots:
+            me.materials.append(mat)
+        idx = {k: slots.index(materials[k]) for k in set(self.mats)}
         mi = np.array([idx[m] for m in self.mats], dtype=np.int32)
         me.polygons.foreach_set("material_index", mi)
         me.polygons.foreach_set("use_smooth", np.ones(len(me.polygons), dtype=bool))
@@ -598,6 +672,47 @@ def reveal(md, half, ids, depth=0.014, mat="black_gloss"):
         md.add([pu, pv, pv - nv * depth, pu - nu * depth], [[0, 1, 2, 3]], [mat])
 
 
+def region_edges(faces):
+    """Unique undirected edges (as two index arrays) of a list of faces."""
+    e = {(min(f[i], f[(i + 1) % len(f)]), max(f[i], f[(i + 1) % len(f)])) for f in faces for i in range(len(f))}
+    e = np.array(sorted(e), dtype=np.int64).reshape(-1, 2)
+    return e[:, 0], e[:, 1]
+
+
+def smooth_field(V, e0, e1, iters, keep=0.5):
+    """Laplacian smoothing of per-vertex vectors over an edge graph."""
+    V = V.copy()
+    cnt = np.bincount(e0, minlength=len(V)) + np.bincount(e1, minlength=len(V))
+    cnt = np.maximum(cnt, 1)[:, None]
+    for _ in range(iters):
+        acc = np.zeros_like(V)
+        np.add.at(acc, e0, V[e1])
+        np.add.at(acc, e1, V[e0])
+        V = keep * V + (1.0 - keep) * acc / cnt
+        V /= np.maximum(np.linalg.norm(V, axis=1, keepdims=True), 1e-12)
+    return V
+
+
+def recess(md, half, ids, depth, panel_mat, wall_mat, iters=40):
+    """Recessed panel behind an opening and straight walls from the
+    opening's edge down to it.  The panel is the undisplaced surface pushed
+    back along a smoothed normal, so creases, grooves and the shoulder line
+    that cross an opening don't wrinkle the panel behind it."""
+    if not ids:
+        return
+    mats = panel_mat if callable(panel_mat) else (lambda k: panel_mat)
+    faces = [half.faces[k] for k in ids]
+    used = sorted({v for f in faces for v in f})
+    remap = {v: i for i, v in enumerate(used)}
+    lf = [[remap[v] for v in f] for f in faces]
+    ab = half.ab[used]
+    D = smooth_field(half.shell.base_normal(ab[:, 0], ab[:, 1]), *region_edges(lf), iters)
+    P = half.shell.base(ab[:, 0], ab[:, 1]) - D * depth
+    md.add(P, lf, [mats(k) for k in ids], [[tuple(D[i]) for i in f] for f in lf])
+    for u, v, _ in boundary(half, ids):
+        md.add([half.P[u], half.P[v], P[remap[v]], P[remap[u]]], [[0, 1, 2, 3]], [wall_mat])
+
+
 def boundary_distance(half, ids):
     """3D distance of each region vertex to the region outline."""
     bnd = boundary(half, ids)
@@ -643,8 +758,8 @@ def surface_patch(md, half, poly_ab, offset, mat, thickness=0.0, sub=2):
     ab = np.array([(v.x, v.y) for v in out[0]])
     faces = [list(f) for f in out[2]]
     S = half.shell
-    Pb = S.base(ab[:, 0], ab[:, 1])
-    N = S.base_normal(ab[:, 0], ab[:, 1])
+    Pb = S.eval(ab[:, 0], ab[:, 1])                  # sits on the sculpted shell
+    N = S.normal(ab[:, 0], ab[:, 1])
     P = Pb + N * offset
     if half.side > 0:
         faces = [f[::-1] for f in faces]

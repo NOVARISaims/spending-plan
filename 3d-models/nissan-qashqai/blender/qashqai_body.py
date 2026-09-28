@@ -4,13 +4,16 @@ The shell is one closed loft: at every station X along the car a closed
 cross-section is built from a handful of control points (sill, bulge,
 shoulder crease, beltline, roof rail, roof centre) and sampled with a
 centripetal Catmull-Rom spline.  Each control point follows a profile
-keyframed along X; the profiles were measured off side-view photos
-(perspective-corrected, see README) and scaled to the published size:
-4377 x 1806 x 1590 mm, 2646 mm wheelbase.
+keyframed along X; the profiles were measured off the side photos through
+their solved cameras (perspective-corrected, see README) at the published
+1806 mm width, 1590 mm height and 2646 mm wheelbase.  The nose follows the
+photos, which put the bumper 3.6 cm shorter than the published 4377 mm
+length implies (4341 mm bumper to bumper, 4356 mm with the front plate).
 
-Pure numpy: returns vertex rings that the build script turns into a mesh.
-Car frame: X forward, Y left, Z up, metres; origin on the ground midway
-between the axles.
+Surface(ds) evaluates the shell continuously as S(a, b): a runs along the
+stations (spaced so the surface moves about ds between them), b along the
+half section.  Pure numpy.  Car frame: X forward, Y left, Z up, metres;
+origin on the ground midway between the axles.
 """
 import numpy as np
 

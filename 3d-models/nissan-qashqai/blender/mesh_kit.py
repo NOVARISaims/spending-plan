@@ -228,13 +228,13 @@ class Kit:
     def to_object(self, collection, materials, smooth_angle=35.0, uv_scale=1.0):
         me = bpy.data.meshes.new(self.name)
         me.from_pydata([tuple(v) for v in self.verts], [], self.faces)
-        names = []
+        slots = []                               # one slot per material (keys may alias)
         for m in self.mats:
-            if m not in names:
-                names.append(m)
-        for nme in names:
-            me.materials.append(materials[nme])
-        idx = {nme: i for i, nme in enumerate(names)}
+            if materials[m] not in slots:
+                slots.append(materials[m])
+        for mat in slots:
+            me.materials.append(mat)
+        idx = {k: slots.index(materials[k]) for k in set(self.mats)}
         me.polygons.foreach_set("material_index", np.array([idx[m] for m in self.mats], np.int32))
         me.polygons.foreach_set("use_smooth", np.array([not s for s in self.sharp], bool))
         me.update()

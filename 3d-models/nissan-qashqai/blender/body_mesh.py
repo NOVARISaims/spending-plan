@@ -78,12 +78,21 @@ class Displacement:
         out = self.profile(dist * sgn)
         if self.side:
             out = np.where(sides == self.side, out, 0.0)
+        # fade out (rather than cut off) where the surface turns away from
+        # the view and at the edges of the clip box, so nothing tears
         facing = -(N @ d) if self.view != "side" else np.abs(N[:, 1])
-        out = np.where(facing > 0.35, out, 0.0)
+        out = out * smoothstep((facing - 0.25) / 0.2)
         if self.box is not None:
             x0, x1, z0, z1 = self.box
-            out = np.where((P[:, 0] >= x0) & (P[:, 0] <= x1) & (P[:, 2] >= z0) & (P[:, 2] <= z1), out, 0.0)
+            e = 0.02
+            out = out * smoothstep((P[:, 0] - x0) / e) * smoothstep((x1 - P[:, 0]) / e) \
+                * smoothstep((P[:, 2] - z0) / e) * smoothstep((z1 - P[:, 2]) / e)
         return out
+
+
+def smoothstep(t):
+    t = np.clip(t, 0.0, 1.0)
+    return t * t * (3.0 - 2.0 * t)
 
 
 def v_groove(width, depth):
@@ -267,6 +276,13 @@ class Mapper:
             o[2] = 5.0
         return o, d
 
+    def cam_ray(self, name, uv):
+        import photo_cams
+        o, d = photo_cams.ray(name, uv)
+        if self.side < 0:                      # photos of the left side trace the right by symmetry
+            o, d = o * [1, -1, 1], d * [1, -1, 1]
+        return o, d
+
     def map(self, pts, iters=5):
         """pts: list of (view, c0, c1) / ("ab", a, b).  Returns (K, 2) surface
         parameters: BVH ray cast, then a vectorised Newton refinement."""
@@ -279,7 +295,10 @@ class Mapper:
                 ab[k] = (p[1], p[2])
                 fixed[k] = True
                 continue
-            o, d = self._ray(p[0], (p[1], p[2]))
+            if p[0].startswith("cam:"):
+                o, d = self.cam_ray(p[0][4:], (p[1], p[2]))
+            else:
+                o, d = self._ray(p[0], (p[1], p[2]))
             hit = self._hit(o, d)
             if hit is None:
                 raise ValueError("outline point misses the body: %r" % (p,))

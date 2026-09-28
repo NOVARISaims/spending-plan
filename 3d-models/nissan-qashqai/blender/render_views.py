@@ -12,18 +12,13 @@ import bmesh
 import numpy as np
 from mathutils import Matrix, Vector
 
+import photo_cams
+
 EXPOSURE = 0.0
 SHADOW_STRENGTH = 0.75
 
-# Solved photo cameras: position (m), yaw/pitch/roll (deg; yaw from +X towards
-# +Y), focal length in pixels for a 1024 x 576 frame.
-PHOTO_CAMS = {
-    "photo_left": ((0.0274, 6.8589, 0.9418), (-90.425, -0.326, -0.046), 1436.2),
-    "photo_right": ((0.0254, -6.7931, 0.9245), (90.427, -0.284, 0.045), 1440.6),
-    "photo_front_left": ((4.9883, 3.8784, 0.8106), (-139.184, 0.031, -2.879), 1492.0),
-    "photo_front_right": ((4.7585, -3.1138, 0.8751), (143.362, -0.682, 4.254), 1298.9),
-    "photo_rear_right": ((-5.8623, -3.6717, 1.1725), (34.909, -3.055, 0.123), 1510.7),
-}
+# Cameras solved from the reference photos (photo_cams.py)
+PHOTO_CAMS = {"photo_" + k: v for k, v in photo_cams.CAMS.items()}
 
 VIEWS = {
     "front_three_quarter": dict(loc=(5.2, 3.9, 1.55), look_at=(0.15, 0.0, 0.62), lens=50.0, res=(1600, 900)),
@@ -34,6 +29,7 @@ VIEWS = {
     # roughly the viewpoint of the 2019 reference photo, for the paint colour
     "paint_check": dict(loc=(-5.6, 4.6, 1.25), look_at=(-0.2, 0.0, 0.70), lens=45.0, res=(1024, 768)),
     "wheel": dict(loc=(1.35, 2.35, 0.45), look_at=(1.30, 0.80, 0.33), lens=50.0, res=(1000, 1000)),
+    "detail_front": dict(loc=(3.35, 1.75, 1.10), look_at=(1.98, 0.25, 0.72), lens=50.0, res=(1400, 900)),
     "photo_left": dict(photo=True, res=(1024, 576)),
     "photo_right": dict(photo=True, res=(1024, 576)),
     "photo_front_left": dict(photo=True, res=(1024, 576)),
@@ -58,6 +54,7 @@ def _floor(scene):
 # strips, like the dealer photos.  Levels are calibrated so the Gun Metallic
 # door and the floor render at the photos' pixel values.
 WORLD = (0.62, 0.62, 0.63)
+FLOOR_REFL = (0.20, 0.20, 0.205)
 LIGHTS = {  # name: (location, target, size, energy)
     "Top": ((0.0, 0.0, 6.0), (0.0, 0.0, 0.0), (8.0, 4.0), 900.0),
     "Left": ((0.5, 7.0, 2.4), (0.0, 0.0, 0.7), (9.0, 2.0), 260.0),
@@ -72,9 +69,27 @@ def setup_studio(scene, samples):
     scene.world = world
     if bpy.app.version < (5, 0, 0):
         world.use_nodes = True
-    bg = world.node_tree.nodes.get("Background")
-    bg.inputs["Color"].default_value = (*WORLD, 1.0)
+    nt = world.node_tree
+    bg = nt.nodes.get("Background")
     bg.inputs["Strength"].default_value = 1.0
+    # reflections: darker studio floor below the horizon, bright ceiling above
+    coord = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    cr = ramp.color_ramp
+    cr.elements[0].position = 0.46
+    cr.elements[0].color = (*FLOOR_REFL, 1.0)
+    cr.elements[1].position = 0.52
+    cr.elements[1].color = (*WORLD, 1.0)
+    top = cr.elements.new(0.95)
+    top.color = (*[min(1.0, c * 1.25) for c in WORLD], 1.0)
+    maprange = nt.nodes.new("ShaderNodeMapRange")
+    maprange.inputs["From Min"].default_value = -1.0
+    maprange.inputs["From Max"].default_value = 1.0
+    nt.links.new(coord.outputs["Generated"], sep.inputs[0])
+    nt.links.new(sep.outputs["Z"], maprange.inputs["Value"])
+    nt.links.new(maprange.outputs["Result"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], bg.inputs["Color"])
 
     for name, (loc, target, size, energy) in LIGHTS.items():
         light = bpy.data.lights.new(name, "AREA")
