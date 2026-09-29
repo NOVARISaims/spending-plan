@@ -1,0 +1,8 @@
+# the BeamNG package (third-party, no licence) and anything built from it
+package/
+out/
+*.blend
+*.blend1
+*.glb
+*.fbx
+__pycache__/
