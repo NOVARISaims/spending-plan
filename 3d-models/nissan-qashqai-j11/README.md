@@ -16,8 +16,9 @@ Blender and Unreal.
 
 **The model files are not in this repository.** They are derived from a
 third-party mod that came without a licence, and this repository is public.
-They were handed over directly, as four zip parts: the `.blend`, the UE5
-package and the shared textures. To make them again from your copy of the
+They were handed over directly: as four zip parts (the `.blend`, the UE5
+package and the shared textures), and as a single self-contained `.blend`
+plus a single `.glb` for UE5. To make them again from your copy of the
 package, see below.
 
 ## Rebuilding
@@ -35,6 +36,7 @@ package, see below.
    python tools/build_q16.py out           # scene -> out/stage1.blend, textures, material specs
    python tools/export_q16.py out          # out/blender/*.blend, out/unreal/*, out/textures/*, out/gltf/*.glb
                                            # (--pack also writes a .blend with the textures packed)
+   python tools/export_single.py out       # out/single/: self-contained .blend and a UE5-ready .glb, each under 30 MB
    python tools/render_q16.py out/stage1.blend out/check_ front34 rear34 dash plate_f plate_r
    ```
 
@@ -51,6 +53,7 @@ package, see below.
 | `tools/matconv.py` | Flattens BeamNG v1.5 and legacy materials into one metallic/roughness layer. It bakes factors into textures, turns uniform textures into constants and converts DirectX normal maps to OpenGL. |
 | `tools/build_q16.py` | Builds the car. It applies paint, plates, RHD, the "lights off" lamp materials and the configuration's skins, and generates 235/50 R18 tyres. The wheels are placed on the hubs at the J11 track. |
 | `tools/export_q16.py` | Writes the Blender file (textures packed, studio set-up), the glTF and the UE5 parts, textures and `manifest.json`. |
+| `tools/export_single.py` | Single-file versions under the 30 MB upload limit. One is a `.blend` with the textures packed, the larger ones as JPEG. The other is a `.glb` of the six UE5 parts, with one wheel mesh used four times. |
 | `tools/import_qashqai_j11.py` | UE5 editor script. It builds master materials and material instances, imports the meshes and assembles `BP_QashqaiJ11`. |
 | `tools/render_q16.py` | Cycles check renders. |
 
