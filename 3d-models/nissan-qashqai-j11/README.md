@@ -8,6 +8,7 @@ owner's differences applied:
 - **Paint:** the package's own Gun Metallic paint.
 - **Number plates:** UK plates DE17 YAU, white at the front and yellow at the
   rear.
+- **Roof rails:** removed.
 - **Right-hand drive:** the package's own `_rhd` interior parts.
 
 `MODEL_README.md` describes the delivered model files and how to use them in

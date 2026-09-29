@@ -1,14 +1,15 @@
 # Nissan Qashqai J11 — DE17 YAU (Blender and Unreal Engine 5)
 
 The default car from the BeamNG.drive **qashqai16** package (FastLane): the
-N-Connecta 1.6 dCi manual, pre-facelift (2014–2017), with roof rails and 18"
-N-Connecta wheels. The owner's car differs from it in three ways, and nothing
-else was changed:
+N-Connecta 1.6 dCi manual, pre-facelift (2014–2017), with 18" N-Connecta
+wheels. The owner's car differs from it in four ways, and nothing else was
+changed:
 
 | Change | What was done |
 |---|---|
 | Paint | The package's own **Gun Metallic** paint replaces the default Ink Blue: base colour sRGB 0.309 grey (linear 0.078), metallic 0.8, roughness 0.65, clear coat 1.0, clear-coat roughness 0.05. |
 | Number plates | UK plates **DE17 YAU**: white at the front, yellow at the rear, Charles Wright 2001 characters on 520 × 111 mm plates. They replace the placeholder EU plates, using the package's plate meshes. |
+| Roof rails | Removed: the package's separate roof-rail part is left off, leaving its plain roof panel. |
 | Right-hand drive | The package's own `_rhd` parts: dashboard, steering wheel, instruments and needles, stalks, start button, pedals, handbrake, glovebox, interior mirror, front door cards, wing-mirror glass and wipers. |
 
 ## Files

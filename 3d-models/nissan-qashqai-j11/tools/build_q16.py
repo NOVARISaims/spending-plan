@@ -461,6 +461,7 @@ def main():
             "source": "BeamNG.drive mod 'qashqai16' by FastLane (static visual package), configuration nconnecta_16dci_m",
             "changes": ["paint: the package's 'Gun Metallic' definition instead of the default Ink Blue",
                         "number plates: UK %s, white front and yellow rear, instead of the EU placeholder plates" % REG,
+                        "roof rails: left off (the qashqai16_roof_rack part)",
                         "right-hand drive: the package's own _rhd dashboard, steering wheel, pedals, stalks, "
                         "gauges, glovebox, door cards, mirrors and wipers"],
             "not_in_package": ["tyres (generated, 235/50 R18)", "JBeam (wheel placement from the hubs and the J11 track)",

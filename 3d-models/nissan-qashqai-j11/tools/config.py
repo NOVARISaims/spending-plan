@@ -1,13 +1,14 @@
 """Meshes of the default configuration (nconnecta_16dci_m.pc), inferred from
-the part names (the JBeam that maps parts to meshes is not in the package).
-Pre-facelift (_a / no suffix) exterior; LHD driver's controls.  RHD_SWAP lists
-the mod's own right-hand-drive replacements."""
+the part names (the JBeam that maps parts to meshes is not in the package),
+without its roof rails, which the owner's car does not have.  Pre-facelift
+(_a / no suffix) exterior; LHD driver's controls.  RHD_SWAP lists the mod's
+own right-hand-drive replacements."""
 
 L_R = ("L", "R")
 FRONT_REAR = ("FL", "FR", "RL", "RR")
 
 EXTERIOR = [
-    "qashqai16_body", "qashqai16_body_notwide", "qashqai16_roof", "qashqai16_roof_rack", "qashqai16_antenna",
+    "qashqai16_body", "qashqai16_body_notwide", "qashqai16_roof", "qashqai16_antenna",   # no roof rails: the owner's car has none
     "qashqai16_hood_a", "qashqai16_bumper_a_F", "qashqai16_bumper_F_notwide", "qashqai16_grille_a", "qashqai16_logo_F",
     "qashqai16_bumper_a_R", "qashqai16_bumper_R_notwide", "qashqai16_bumper_a_R_diffuser", "circle",
     "qashqai16_fender_FL", "qashqai16_fender_FR", "qashqai16_fender_FL_notwide", "qashqai16_fender_FR_notwide",
