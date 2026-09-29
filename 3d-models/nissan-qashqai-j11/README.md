@@ -15,8 +15,9 @@ Blender and Unreal.
 
 **The model files are not in this repository.** They are derived from a
 third-party mod that came without a licence, and this repository is public.
-They were handed over directly: the `.blend`, the UE5 package and the `.glb`.
-To make them again from your copy of the package, see below.
+They were handed over directly, as four zip parts: the `.blend`, the UE5
+package and the shared textures. To make them again from your copy of the
+package, see below.
 
 ## Rebuilding
 
@@ -31,7 +32,8 @@ To make them again from your copy of the package, see below.
 
    ```
    python tools/build_q16.py out           # scene -> out/stage1.blend, textures, material specs
-   python tools/export_q16.py out          # out/blender/*.blend, out/unreal/*, out/gltf/*.glb
+   python tools/export_q16.py out          # out/blender/*.blend, out/unreal/*, out/textures/*, out/gltf/*.glb
+                                           # (--pack also writes a .blend with the textures packed)
    python tools/render_q16.py out/stage1.blend out/check_ front34 rear34 dash plate_f plate_r
    ```
 

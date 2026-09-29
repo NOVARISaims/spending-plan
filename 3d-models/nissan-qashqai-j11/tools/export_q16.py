@@ -1,10 +1,11 @@
 """Final deliverables from OUTDIR/stage1.blend (see build_q16.py):
 
-    OUTDIR/blender/Qashqai_J11_DE17YAU.blend   textures packed, studio set-up
-    OUTDIR/unreal/*.fbx, textures/, manifest.json, import_qashqai_j11.py
-    OUTDIR/gltf/Qashqai_J11_DE17YAU.glb
+    OUTDIR/textures/*.png                      shared by the Blender file and the UE5 package
+    OUTDIR/blender/Qashqai_J11_DE17YAU.blend   studio set-up; textures from ../textures
+    OUTDIR/unreal/*.fbx, manifest.json, import_qashqai_j11.py
+    OUTDIR/gltf/Qashqai_J11_DE17YAU.glb        self-contained
 
-    python export_q16.py OUTDIR"""
+    python export_q16.py [--pack] OUTDIR       --pack also writes a .blend with the textures packed"""
 import json
 import math
 import os
@@ -171,11 +172,17 @@ def main():
     # ------------------------------------------------------------ Blender file
     bdir = os.path.join(out, "blender")
     os.makedirs(bdir, exist_ok=True)
-    for img in bpy.data.images:
-        if img.source == "FILE" and not img.packed_file:
-            img.pack()
-    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(bdir, NAME + ".blend"), compress=True, copy=True)
+    env.image.pack()                              # the HDRI is not in the texture folder
+    bpy.ops.file.make_paths_relative()
+    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(bdir, NAME + ".blend"), compress=True, copy=True,
+                                relative_remap=True)
     log("saved", os.path.join(bdir, NAME + ".blend"))
+    if "--pack" in sys.argv:
+        for img in bpy.data.images:
+            if img.source == "FILE" and not img.packed_file:
+                img.pack()
+        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(bdir, NAME + "_packed.blend"), compress=True, copy=True)
+        log("saved", os.path.join(bdir, NAME + "_packed.blend"))
 
     # ------------------------------------------------------------------ glTF
     gdir = os.path.join(out, "gltf")
@@ -190,10 +197,10 @@ def main():
 
     # ---------------------------------------------------------------- Unreal
     udir = os.path.join(out, "unreal")
-    tdir = os.path.join(udir, "textures")
+    tdir = os.path.join(out, "textures")
     if os.path.isdir(udir):
         shutil.rmtree(udir)
-    os.makedirs(tdir)
+    os.makedirs(udir)
     tmp = bpy.data.collections.new("_export")
     scene.collection.children.link(tmp)
     cols = {c.name: c for c in car.children}
@@ -229,16 +236,14 @@ def main():
     materials = {m: ue_material(specs[m], texinfo) for m in used}
     tex_used = sorted({k for m in materials.values() for k in m["textures"].values()})
     textures = {}
-    for k in tex_used:
-        f = texinfo[k]["file"]
-        shutil.copy2(os.path.join(out, "textures", f), os.path.join(tdir, f))
-        textures[k] = {"file": "textures/" + f, "kind": texinfo[k]["kind"]}
+    for k in tex_used:                        # paths relative to the unreal folder
+        textures[k] = {"file": "../textures/" + texinfo[k]["file"], "kind": texinfo[k]["kind"]}
     # 4x4 defaults for unused texture slots
     from PIL import Image
     for f, col, kind in (("T_J11_White.png", (255, 255, 255), "color"), ("T_J11_WhiteLinear.png", (255, 255, 255), "data"),
                          ("T_J11_FlatNormal.png", (128, 128, 255), "normal")):
         Image.new("RGB", (4, 4), col).save(os.path.join(tdir, f))
-        textures[f[:-4]] = {"file": "textures/" + f, "kind": kind}
+        textures[f[:-4]] = {"file": "../textures/" + f, "kind": kind}
 
     L = info["wheel_centres_m"]
     manifest = {
